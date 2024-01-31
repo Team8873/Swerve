@@ -8,10 +8,14 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.UIConstants;
 public class Robot extends TimedRobot {
   private final AHRS gyroscope = new AHRS();
 
@@ -19,19 +23,36 @@ public class Robot extends TimedRobot {
   private final SlewRateLimiter xLimiter = new SlewRateLimiter(DriveConstants.rateLimit);
   private final SlewRateLimiter yLimiter = new SlewRateLimiter(DriveConstants.rateLimit);
   private final SlewRateLimiter rotLimiter = new SlewRateLimiter(DriveConstants.rateLimit);
+
+  private GenericEntry saveButton;
+
   @Override
   public void robotInit() {
     SwerveDrivetrain.init(gyroscope);
+    saveButton = UIConstants.tuning
+    .add("Save parameters", false)
+    .withPosition(0, 4)
+    .withSize(1, 1)
+    .withWidget(BuiltInWidgets.kToggleButton)
+    .getEntry();
+
+    addPeriodic(SwerveDrivetrain::onPeriodic, 10.0 / 1000.0, 5.0 / 1000.0);
   }
 
   @Override
   public void autonomousPeriodic() {
-    driveWithStick(false);
-    SwerveDrivetrain.updateOdometry();
+
   }
 
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    SwerveDrivetrain.printInformation();
+    SwerveDrivetrain.onPeriodic();
+    if (saveButton.getBoolean(false)) {
+      saveButton.setBoolean(false);
+      SaveableDouble.saveStore();
+    }
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -45,8 +66,13 @@ public class Robot extends TimedRobot {
 
   private void driveWithStick(boolean fieldRel) {
     final double xSpeed = -xLimiter.calculate(MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.deadband)) * SwerveConstants.maxSpeed;
-    final double ySpeed = -yLimiter.calculate(MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.deadband)) * SwerveConstants.maxSpeed;
+    final double ySpeed = yLimiter.calculate(MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.deadband)) * SwerveConstants.maxSpeed;
     final double rotSpeed = -rotLimiter.calculate(MathUtil.applyDeadband(controller.getRightY(), DriveConstants.deadband)) * SwerveConstants.maxAngularVelocity;
+
+    SmartDashboard.putNumber("xSpeed", xSpeed);
+    SmartDashboard.putNumber("ySpeed", ySpeed);
+    SmartDashboard.putNumber("rotSpeed", rotSpeed);
+
 
     SwerveDrivetrain.drive(xSpeed, ySpeed, rotSpeed, fieldRel, getPeriod());
   }

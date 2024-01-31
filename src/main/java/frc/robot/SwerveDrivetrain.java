@@ -18,6 +18,14 @@ public class SwerveDrivetrain {
     private static SwerveDriveKinematics kinematics;
     private static SwerveDriveOdometry odometry;
 
+    public static void printInformation() {
+        modules.stream().forEach(m -> m.printInformation());
+    }
+
+    public static void onPeriodic() {
+        modules.stream().forEach(m -> m.onPeriodic());
+    }
+
     public static void init(AHRS gyro) {
         gyroscope = gyro;
         gyro.reset();
