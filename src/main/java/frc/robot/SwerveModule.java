@@ -3,9 +3,13 @@ package frc.robot;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.UIConstants;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -15,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 
@@ -28,19 +33,21 @@ public class SwerveModule {
 
     private ModuleSettings settings;
 
-    private PIDController drivePid = new PIDController(SwerveConstants.driveP, SwerveConstants.driveI, SwerveConstants.driveD);
+    private SparkPIDController drivingPid;
     private ProfiledPIDController turningPid = new ProfiledPIDController(
         SwerveConstants.turnP,
         SwerveConstants.turnI,
         SwerveConstants.turnD,
         new TrapezoidProfile.Constraints(
-            SwerveConstants.maxAngularVelocity,
-            SwerveConstants.maxAngularAcceleration));
+            SwerveConstants.maxWheelAngularVelocity,
+            SwerveConstants.maxWheelAngularAcceleration));
 
     private MedianFilter encoderFilter = new MedianFilter(SwerveConstants.filterWindow);
     private double filteredAngle;
 
     private GenericEntry driveSpeed;
+    private GenericEntry velTarget;
+    private GenericEntry velCurrent;
     private GenericEntry turningSpeed;
     private GenericEntry turningTarget;
 
@@ -49,6 +56,11 @@ public class SwerveModule {
 
     private GenericEntry zeroEncoder;
     private GenericEntry turningBias;
+
+    private GenericEntry bumpPlus;
+    private GenericEntry bumpMinus;
+
+    private GenericEntry flipEncoder;
 
     public static class ModuleSettings {
         public final int drivePort;
@@ -73,15 +85,20 @@ public class SwerveModule {
         turnMotor = new CANSparkMax(settings.turnPort, MotorType.kBrushless);
         turnEncoder = new CANcoder(settings.encoderPort);
 
+        drivingPid = driveMotor.getPIDController();
+        drivingPid.setP(SwerveConstants.driveP);
+        drivingPid.setI(SwerveConstants.driveI);
+        drivingPid.setD(SwerveConstants.driveD);
+        drivingPid.setFF(1.0);
+
         driveEncoder = driveMotor.getEncoder();
         driveEncoder.setPositionConversionFactor(SwerveConstants.driveEncoderScaleFactor);
-        driveEncoder.setVelocityConversionFactor(SwerveConstants.driveEncoderScaleFactor);
+        driveEncoder.setVelocityConversionFactor(SwerveConstants.driveEncoderScaleFactor * 60);
 
         turningPid.enableContinuousInput(-Math.PI, Math.PI);
 
         encoderOffset = settings.offset;
         this.settings = settings;
-
 
         driveSpeed = UIConstants.debug
         .addPersistent(settings.drivePort + " Drive", 0.0)
@@ -132,6 +149,36 @@ public class SwerveModule {
         .withSize(1, 1)
         .withPosition(settings.columnBase + 1, 0)
         .getEntry();
+
+        velTarget = UIConstants.debug
+        .addPersistent(settings.drivePort + " Target", 0.0)
+        .withSize(1, 1)
+        .withPosition(settings.columnBase, 3)
+        .getEntry();
+        velCurrent = UIConstants.debug
+        .addPersistent(settings.drivePort + " Velocity", 0.0)
+        .withSize(1, 1)
+        .withPosition(settings.columnBase + 1, 3)
+        .getEntry();
+
+        bumpPlus = UIConstants.tuning
+        .add("Bump + " + settings.name, false)
+        .withSize(1, 1)
+        .withPosition(settings.columnBase, 2)
+        .withWidget(BuiltInWidgets.kToggleButton)
+        .getEntry();
+        bumpMinus = UIConstants.tuning
+        .add("Bump - " + settings.name, false)
+        .withSize(1, 1)
+        .withPosition(settings.columnBase + 1, 2)
+        .withWidget(BuiltInWidgets.kToggleButton)
+        .getEntry();
+        flipEncoder = UIConstants.tuning
+        .add("Flip " + settings.encoderPort, false)
+        .withSize(1, 1)
+        .withPosition(settings.columnBase + 1, 1)
+        .withWidget(BuiltInWidgets.kToggleButton)
+        .getEntry();
     }
 
     public void printInformation() {
@@ -146,11 +193,28 @@ public class SwerveModule {
             zeroEncoder.setBoolean(false);
             zeroEncoder();
         }
+        else if (bumpPlus.getBoolean(false)) {
+            bumpPlus.setBoolean(false);
+            encoderOffset += SwerveDrivetrain.shouldFineTune ? 0.005 : 0.001;
+            new SaveableDouble(settings.name, 0.0).set(encoderOffset);
+        }
+        else if (bumpMinus.getBoolean(false)) {
+            bumpMinus.setBoolean(false);
+            encoderOffset -= SwerveDrivetrain.shouldFineTune ? 0.005 : 0.001;
+            new SaveableDouble(settings.name, 0.0).set(encoderOffset);
+        }
+        if (flipEncoder.getBoolean(false)) {
+            flipEncoder.setBoolean(false);
+            encoderOffset += 0.5;
+            if (encoderOffset > 0.5) encoderOffset -= 1;
+            new SaveableDouble(settings.name, 0.0).set(encoderOffset);
+        }
         filteredAngle = encoderFilter.calculate(turnEncoder.getAbsolutePosition().getValueAsDouble());
         filteredAngle += encoderOffset;
         if (filteredAngle < -0.5) filteredAngle += 1;
         if (filteredAngle > 0.5) filteredAngle -= 1;
         filteredAngle *= SwerveConstants.turnEncoderScaleFactor;
+        velCurrent.setDouble(driveEncoder.getVelocity());
     }
 
     public void zeroEncoder() {
@@ -173,18 +237,17 @@ public class SwerveModule {
 
         final var optimizedState = SwerveModuleState.optimize(state, rotation);
 
-        final double driveTarget = drivePid.calculate(driveEncoder.getVelocity(), optimizedState.speedMetersPerSecond);
-        final double turnTarget = turningPid.calculate(filteredAngle, optimizedState.angle.getRadians());
+        final double turnTarget = -turningPid.calculate(filteredAngle, optimizedState.angle.getRadians());
 
-        driveSpeed.setDouble(driveTarget);
         turningSpeed.setDouble(turnTarget);
         turningTarget.setDouble(optimizedState.angle.getRadians());
-        driveMotor.set(driveTarget);
+        drivingPid.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
+        driveSpeed.setDouble(driveMotor.get());
         turnMotor.set(turnTarget);
     }
 
     public void updateDrivingPID(double p, double i, double d) {
-        drivePid.setPID(p, i, d);
+        //drivePid.setPID(p, i, d);
     }
 
     public void updateTurningPID(double p, double i, double d) {
