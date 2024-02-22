@@ -1,10 +1,9 @@
-package frc.robot;
+package frc.robot.swerve;
 
+import frc.robot.SaveableDouble;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.UIConstants;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -12,14 +11,12 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 
@@ -46,7 +43,6 @@ public class SwerveModule {
     private double filteredAngle;
 
     private GenericEntry driveSpeed;
-    private GenericEntry velTarget;
     private GenericEntry velCurrent;
     private GenericEntry turningSpeed;
     private GenericEntry turningTarget;
@@ -150,11 +146,6 @@ public class SwerveModule {
         .withPosition(settings.columnBase + 1, 0)
         .getEntry();
 
-        velTarget = UIConstants.debug
-        .addPersistent(settings.drivePort + " Target", 0.0)
-        .withSize(1, 1)
-        .withPosition(settings.columnBase, 3)
-        .getEntry();
         velCurrent = UIConstants.debug
         .addPersistent(settings.drivePort + " Velocity", 0.0)
         .withSize(1, 1)

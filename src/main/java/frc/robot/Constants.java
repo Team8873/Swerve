@@ -7,7 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import frc.robot.SwerveModule.ModuleSettings;
+import frc.robot.swerve.SwerveModule.ModuleSettings;
 
 public class Constants {
     public static class SwerveConstants {
