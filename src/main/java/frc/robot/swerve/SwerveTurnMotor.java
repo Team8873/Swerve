@@ -1,7 +1,5 @@
 package frc.robot.swerve;
 
-import java.util.function.DoubleSupplier;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -24,9 +22,9 @@ public class SwerveTurnMotor {
      * 
      *  To put its debug UI on shuffleboard, call the setupUI(String, int) function.
      * */
-    public SwerveTurnMotor(int motorPort, int encoderPort, PIDSettings pid) {
+    public SwerveTurnMotor(int motorPort, SwerveEncoder encoder, PIDSettings pid) {
         motor = new CANSparkMax(motorPort, MotorType.kBrushless);
-        encoder = new SwerveEncoder();
+        this.encoder = encoder;
         turningController = pid.toController();
 
         motor.setInverted(true);
@@ -37,22 +35,20 @@ public class SwerveTurnMotor {
 
     public void setTarget(double target) {
         rotationTarget = target;
-        rotationSpeed = turningController.calculate(rotationTarget, 0.0);
+        rotationSpeed = turningController.calculate(rotationTarget, encoder.getAngle().getRadians());
     }
 
     public void setupUI(String name, int column) {
-        DoubleSupplier targetSupplier = () -> rotationTarget;
         UIConstants.debug
             .addDouble(
                 name + " target",
-                targetSupplier)
+                () -> rotationTarget)
             .withPosition(column, 0);
 
-        DoubleSupplier speedSupplier = () -> rotationSpeed;
         UIConstants.debug
             .addDouble(
                 name + " turning",
-                speedSupplier)
+                () -> rotationSpeed)
             .withPosition(column, 1);
     }
 }

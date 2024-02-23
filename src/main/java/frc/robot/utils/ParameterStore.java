@@ -21,7 +21,7 @@ public class ParameterStore {
         return value;
     }
 
-    public static void update(String key, Double value) {
+    public static void set(String key, Double value) {
         store.put(key, value);
     }
 
