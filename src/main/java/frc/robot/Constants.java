@@ -90,6 +90,13 @@ public class Constants {
         public static final int rightShooterPort = 16;
 
         public static final int intakePort = 17;
+
+        public static final double rotSpeed = -0.24;
+        public static final double shooterSpeed = 0.72;
+        public static final double intakeSpeed = 1.0;
+
+        public static final double angleHoldGain = -0.24;
+        public static final double angleHoldMaxSpeed = 0.6;
     }
 
     public static class DriveConstants {
@@ -101,10 +108,6 @@ public class Constants {
     public static class UIConstants {
         public static final ShuffleboardTab debug = Shuffleboard.getTab("Debug");
         public static final ShuffleboardTab tuning = Shuffleboard.getTab("Tuning");
-        public static final ShuffleboardTab arming = Shuffleboard.getTab("Arm 💪");
-
-        public static final String squareTransform = "Quadratic";
-        public static final String linearTransform = "Linear";
-        public static final String twoStepTransform = "Two Step Linear";
+        public static final ShuffleboardTab arming = Shuffleboard.getTab("Arm");
     }
 }
