@@ -2,42 +2,38 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.utils.CommandInputReader;
+import frc.robot.utils.Pov;
 
 public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double armRotSpeed, double intakeSpeed, double shooterSpeed, boolean slowMode, ArmCommand command) {
-    private static final int HAT_UP = 0;
-    @SuppressWarnings("unused")
-    private static final int HAT_UP_RIGHT = 45;
-    @SuppressWarnings("unused")
-    private static final int HAT_RIGHT = 90;
-    @SuppressWarnings("unused")
-    private static final int HAT_DOWN_RIGHT = 135;
-    private static final int HAT_DOWN = 180;
-    @SuppressWarnings("unused")
-    private static final int HAT_DOWN_LEFT = 225;
-    private static final int HAT_LEFT = 270;
-    @SuppressWarnings("unused")
-    private static final int HAT_UP_LEFT = 315;
 
     public static InputPacket readFromController(XboxController controller) {
-        int hat = controller.getPOV();
+        int pov = controller.getPOV();
         ArmCommand command = ArmCommand.None;
 
-        switch (hat) {
-        case HAT_UP:
-        {
-            if (controller.getBButton()) command = ArmCommand.ReverseIntake;
-            if (controller.getAButton()) command = ArmCommand.ToShoot;
-        } break;
-        case HAT_DOWN:
-        {
-            if (controller.getBButton()) command = ArmCommand.Zero;
-            if (controller.getAButton()) command = ArmCommand.ToGround;
-        } break;
-        case HAT_LEFT:
-        {
-            if (controller.getAButton()) command = ArmCommand.ToAmp;
-        } break;
+        switch (CommandInputReader.getInstance().processHat(pov)) {
+            case None:
+            case _2:
+            case _21:
+            case _23:
+            {
+                controller.setRumble(RumbleType.kBothRumble, 0.0);
+                command = commandFromHat(pov, controller);
+            } break;
+            case _214:
+            {
+                controller.setRumble(RumbleType.kBothRumble, 1.0);
+                if (controller.getAButtonPressed()) command = ArmCommand.ToShoot;
+                if (controller.getBButtonPressed()) command = ArmCommand.ToAmp;
+            } break;
+            case _236:
+            {
+                controller.setRumble(RumbleType.kBothRumble, 1.0);
+                if (controller.getAButtonPressed()) command = ArmCommand.ToGround;
+                if (controller.getBButtonPressed()) command = ArmCommand.Zero;
+            }
         }
 
         return new InputPacket(
@@ -55,12 +51,31 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
         return slowMode ? 0.2 : 1.0;
     }
 
+    private static ArmCommand commandFromHat(int pov, XboxController controller) {
+        ArmCommand command = ArmCommand.None;
+        switch (pov) {
+        case Pov.HAT_UP:
+        {
+            if (controller.getAButton()) command = ArmCommand.ToShoot;
+        } break;
+        case Pov.HAT_DOWN:
+        {
+            if (controller.getBButton()) command = ArmCommand.Zero;
+            if (controller.getAButton()) command = ArmCommand.ToGround;
+        } break;
+        case Pov.HAT_LEFT:
+        {
+            if (controller.getAButton()) command = ArmCommand.ToAmp;
+        } break;
+        }
+        return command;
+    }
+
     public static enum ArmCommand {
         None,
         Zero,
         ToGround,
         ToShoot,
         ToAmp,
-        ReverseIntake,
     }
 }
