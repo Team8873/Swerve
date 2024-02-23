@@ -22,6 +22,7 @@ public class SwerveDriveMotor {
         motor = new CANSparkMax(motorPort, MotorType.kBrushless);
         encoder = motor.getEncoder();
         velocityPid = pid.toController(motor);
+        velocityPid.setFF(1.0);
 
         encoder.setPositionConversionFactor(Constants.SwerveConstants.driveEncoderScaleFactor);
         // RPS to RPM
@@ -35,6 +36,14 @@ public class SwerveDriveMotor {
         targetVelocity = velocity;
         
         velocityPid.setReference(targetVelocity, ControlType.kVelocity);
+    }
+
+    public double getPosition() {
+        return encoder.getPosition();
+    }
+
+    public double getVelocity() {
+        return encoder.getVelocity();
     }
 
     public void setupUI(String name, int column) {

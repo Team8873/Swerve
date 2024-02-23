@@ -25,7 +25,7 @@ public class SimpleButton {
         }
     }
 
-    private static void updateAll() {
+    public static void updateAll() {
         for (var button : instances) {
             button.update();
         }

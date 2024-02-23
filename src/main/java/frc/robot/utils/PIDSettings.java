@@ -25,4 +25,8 @@ public record PIDSettings(double p, double i, double d) {
         pid.setFF(0.0);
         return pid;
     }
+
+    public void copyTo(PIDController other) {
+        other.setPID(p, i, d);
+    }
 }

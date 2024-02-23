@@ -8,6 +8,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.swerve.SwerveModule.ModuleSettings;
+import frc.robot.utils.PIDSettings;
+import frc.robot.utils.ParameterStore;
 
 public class Constants {
     public static class SwerveConstants {
@@ -52,10 +54,10 @@ public class Constants {
             // Each module needs a drive motor port, a turning motor port, an encoder port, and an encoder offset.
             // These settings assume that only the builtin drive motor encoder is used, and an external absolute 
             // turning encoder is supplied. You may need to change this depending on your setup.
-            new ModuleSettings(6, 5, 9, new SaveableDouble("Front Left", 0.17578125).get(), 9, "Front Left"),
-            new ModuleSettings(8, 7, 10, new SaveableDouble("Front Right", -0.120361328125).get(), 6, "Front Right"),
-            new ModuleSettings(4, 3, 11, new SaveableDouble("Back Left", -0.445068359375).get(), 3, "Back Left"),
-            new ModuleSettings(2, 1, 12, new SaveableDouble("Back Right",  0.33837890625).get(), 0, "Back Right"),
+            new ModuleSettings(6, 5, 9,  9, "front-left"),
+            new ModuleSettings(8, 7, 10, 6, "front-right"),
+            new ModuleSettings(4, 3, 11, 3, "back-left"),
+            new ModuleSettings(2, 1, 12, 0, "back-right"),
         });
 
         // The positions of all swerve modules, left to right, front to back.
@@ -67,13 +69,21 @@ public class Constants {
         };
 
         // PID Constants for driving and turning
-        public static final double driveP = 0.1000;
-        public static final double driveI = 0.0000;
-        public static final double driveD = 0.0000;
+        public static final PIDSettings drivePID = new PIDSettings(0.1, 0.0, 0.0);
 
-        public static final double turnP = new SaveableDouble("turnp", .333).get();
-        public static final double turnI = new SaveableDouble("turni", 0.200).get();
-        public static final double turnD = new SaveableDouble("turnd", .010).get();
+        public static PIDSettings getTurnPID() {
+            double p = ParameterStore.get("turn-p", 0.5);
+            double i = ParameterStore.get("turn-i", 0.0);
+            double d = ParameterStore.get("turn-d", 0.0);
+
+            return new PIDSettings(p, i, d);
+        }
+
+        public static void setTurnPID(PIDSettings settings) {
+            ParameterStore.set("turn-p", settings.p());
+            ParameterStore.set("turn-i", settings.i());
+            ParameterStore.set("turn-d", settings.d());
+        }
     }
 
     public static class DriveConstants {

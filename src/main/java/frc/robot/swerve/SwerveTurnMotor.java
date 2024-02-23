@@ -26,6 +26,7 @@ public class SwerveTurnMotor {
         motor = new CANSparkMax(motorPort, MotorType.kBrushless);
         this.encoder = encoder;
         turningController = pid.toController();
+        turningController.enableContinuousInput(-Math.PI, Math.PI);
 
         motor.setInverted(true);
 
@@ -36,6 +37,10 @@ public class SwerveTurnMotor {
     public void setTarget(double target) {
         rotationTarget = target;
         rotationSpeed = turningController.calculate(rotationTarget, encoder.getAngle().getRadians());
+    }
+
+    public void updateGains(PIDSettings pid) {
+        pid.copyTo(turningController);
     }
 
     public void setupUI(String name, int column) {
