@@ -10,6 +10,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.UIConstants;
 import frc.robot.utils.PIDSettings;
 
+/** A class representing a motor in a swerve drive module */
 public class SwerveDriveMotor {
     private CANSparkMax motor;
     private SparkPIDController velocityPid;
@@ -18,6 +19,10 @@ public class SwerveDriveMotor {
     private double targetVelocity;
     private double currentSpeed;
 
+    /** Create a new SwerveDriveMotor on the given port with the given PID settings.
+     * @param motorPort The port of the swerve motor.
+     * @param pid The PID settings to use.
+     */
     public SwerveDriveMotor(int motorPort, PIDSettings pid) {
         motor = new CANSparkMax(motorPort, MotorType.kBrushless);
         encoder = motor.getEncoder();
@@ -32,20 +37,33 @@ public class SwerveDriveMotor {
         currentSpeed = 0;
     }
 
+    /** Set the target velocity of the motor.
+     * @param velocity The target velocity, in meters per second.
+     */
     public void setTarget(double velocity) {
         targetVelocity = velocity;
         
         velocityPid.setReference(targetVelocity, ControlType.kVelocity);
     }
 
+    /** Get the position of the motor's encoder.
+     * @return The position of the motor's encoder.
+     */
     public double getPosition() {
         return encoder.getPosition();
     }
 
+    /** Get the velocity of the motor.
+     * @return The velocity of the motor.
+     */
     public double getVelocity() {
         return encoder.getVelocity();
     }
 
+    /** Initialize the motor's UI on Shuffleboard.
+     * @param name The name of the module this motor is attached to.
+     * @param column The column to place UI elements on.
+     */
     public void setupUI(String name, int column) {
         UIConstants.debug
             .addDouble(

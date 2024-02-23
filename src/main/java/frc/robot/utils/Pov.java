@@ -1,5 +1,6 @@
 package frc.robot.utils;
 
+/** A class that contains named constants for POV hat directions */
 public class Pov {
     public static final int HAT_NONE = -1;
     public static final int HAT_UP = 0;

@@ -12,19 +12,32 @@ import java.util.HashMap;
 
 import edu.wpi.first.wpilibj.Filesystem;
 
+/** A simple double parameter store that persists data between reloads */
 public class ParameterStore {
     private static HashMap<String, Double> store;
 
+    /** Get the value associated with the given key, or associate that key with a default value if it is not in the store.
+     * 
+     * @param key The key to use.
+     * @param defaultValue The default value to use if the key does not exist in the store.
+     * @return The value in the store, or the default value if the key was not present in the store.
+     */
     public static Double get(String key, Double defaultValue) {
         Double value = store.putIfAbsent(key, defaultValue);
         if (value == null) value = defaultValue;
         return value;
     }
 
+    /** Set the value of the specified key in the store.
+     * 
+     * @param key The key to use.
+     * @param value The value to set it to.
+     */
     public static void set(String key, Double value) {
         store.put(key, value);
     }
 
+    /** Initialize the parameter store from persistent storage. */
     public static void initialize() {
         store = new HashMap<>();
 
@@ -50,6 +63,7 @@ public class ParameterStore {
         }
     }
 
+    /** Save the current values in the parameter store to persistent storage. */
     public static void saveStore() {
         File dataFile = Paths
         .get(

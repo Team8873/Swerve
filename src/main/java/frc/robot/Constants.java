@@ -18,10 +18,10 @@ public class Constants {
         /** The distance between the front and back swerve modules in meters */
         public static final double driveLength = Units.inchesToMeters(19 + 3.0 / 16.0);
 
+        /** X offset of the gyro in meters */
         public static final double gyroXOffset = -Units.inchesToMeters(0);
+        /** Y offset of the gyro in meters */
         public static final double gyroYOffset = -Units.inchesToMeters(0);
-
-        public static final int filterWindow = 1;
 
         /** The maximum speed of the drivetrain in meters per second */
         public static final double maxSpeed = Units.feetToMeters(3.0);
@@ -83,31 +83,48 @@ public class Constants {
     }
 
     public static class ArmConstants {
+        /** CAN port of the left arm rotation motor */
         public static final int leftRotationPort = 13;
+        /** CAN port of the right arm rotation motor */
         public static final int rightRotationPort = 14;
 
+        /** CAN port of the left shooter motor */
         public static final int leftShooterPort = 15;
+        /** CAN port of the right shooter motor */
         public static final int rightShooterPort = 16;
 
+        /** CAN port of the intake motor */
         public static final int intakePort = 17;
 
+        /** Maximum speed of user-controlled arm rotation */
         public static final double rotSpeed = -0.24;
+        /** Maximum speed of user-controlled shooting */
         public static final double shooterSpeed = 0.72;
+        /** Maximum speed of user-controlled intaking */
         public static final double intakeSpeed = 1.0;
 
+        /** Gain of the angle hold system */
         public static final double angleHoldGain = -0.24;
+        /** The maximum speed of the angle hold system, on [0,1] */
         public static final double angleHoldMaxSpeed = 0.6;
     }
 
     public static class DriveConstants {
+        /** The port of the main drive controller */
         public static final int controllerPort = 0;
+        /** The maximum rate of change of the drive inputs */
         public static final double rateLimit = 2.0;
+        /** The deadband for all analog axes */
         public static final double deadband = 0.075;
+
+        /** The speed modifier for slow mode */
+        public static final double slowModeModifier = 0.2;
     }
 
     public static class UIConstants {
+        /** The debug display tab */
         public static final ShuffleboardTab debug = Shuffleboard.getTab("Debug");
+        /** The tuning display tab */
         public static final ShuffleboardTab tuning = Shuffleboard.getTab("Tuning");
-        public static final ShuffleboardTab arming = Shuffleboard.getTab("Arm");
     }
 }

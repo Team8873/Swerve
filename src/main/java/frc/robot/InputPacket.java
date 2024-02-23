@@ -9,6 +9,10 @@ import frc.robot.utils.Pov;
 
 public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double armRotSpeed, double intakeSpeed, double shooterSpeed, boolean slowMode, ArmCommand command) {
 
+    /** Create an InputPacket from the controllers inputs.
+     * @param controller The main drive controller.
+     * @return The InputPacket read from the controller.
+     */
     public static InputPacket readFromController(XboxController controller) {
         int pov = controller.getPOV();
         ArmCommand command = ArmCommand.None;
@@ -47,10 +51,11 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
             command);
     }
 
-    public double getSpeedMod() {
-        return slowMode ? 0.2 : 1.0;
-    }
-
+    /** Convert the current POV hat input into an arm command.
+     * @param pov The current POV hat input.
+     * @param controller The main drive controller.
+     * @return The arm command input by the driver.
+     */
     private static ArmCommand commandFromHat(int pov, XboxController controller) {
         ArmCommand command = ArmCommand.None;
         switch (pov) {
@@ -71,6 +76,7 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
         return command;
     }
 
+    /** An enum representing the possible preset arm commands */
     public static enum ArmCommand {
         None,
         Zero,

@@ -17,11 +17,11 @@ public class SwerveTurnMotor {
     private double rotationTarget;
     private double rotationSpeed;
 
-    /**
-     *  Construct a new SwerveTurnMotor with the specified settings.  
-     * 
-     *  To put its debug UI on shuffleboard, call the setupUI(String, int) function.
-     * */
+    /** Create a new SwerveTurningMotor
+     * @param motorPort The port of the turning motor.
+     * @param encoder The encoder attached to this motor.
+     * @param pid The PID settings to use.
+     */
     public SwerveTurnMotor(int motorPort, SwerveEncoder encoder, PIDSettings pid) {
         motor = new CANSparkMax(motorPort, MotorType.kBrushless);
         this.encoder = encoder;
@@ -34,15 +34,25 @@ public class SwerveTurnMotor {
         rotationSpeed = 0.0;
     }
 
+    /** Set the target angle of the module.
+     * @param target The target angle.
+     */
     public void setTarget(double target) {
         rotationTarget = target;
         rotationSpeed = turningController.calculate(rotationTarget, encoder.getAngle().getRadians());
     }
 
+    /** Update the PID gains of this motor.
+     * @param pid The new gains to use.
+     */
     public void updateGains(PIDSettings pid) {
         pid.copyTo(turningController);
     }
 
+    /** Initialize the motor's UI on Shuffleboard.
+     * @param name The name of the motor this encoder is attached to.
+     * @param column The column to place UI elements on.
+     */
     public void setupUI(String name, int column) {
         UIConstants.debug
             .addDouble(

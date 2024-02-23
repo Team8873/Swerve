@@ -13,10 +13,11 @@ public record PIDSettings(double p, double i, double d) {
     }
     
     /** Get and return the SparkPIDController of the given motor with the gains specified by this
-     *  PIDSettings object.
+     *  PIDSettings object. This does not set the FF gain on the pid.
      *  
-     *  This does not set the FF gain on the pid.
-     *  */
+     * @param motor The motor to get the controller of.
+     * @return The motor's PID controller with the correct gains.
+     */
     public SparkPIDController toController(CANSparkMax motor) {
         var pid = motor.getPIDController();
         pid.setP(p);
@@ -26,6 +27,9 @@ public record PIDSettings(double p, double i, double d) {
         return pid;
     }
 
+    /** Copy the gains of this record to the given PID controller.
+     * @param other the PID controller to copy the gains to.
+     */
     public void copyTo(PIDController other) {
         other.setPID(p, i, d);
     }

@@ -19,6 +19,7 @@ import frc.robot.utils.SimpleButton;
 import frc.robot.utils.SimpleNumber;
 import frc.robot.utils.PIDSettings;
 
+/** A class representing a complete swerve drive system */
 public class SwerveDrivetrain {
     private static AHRS gyroscope;
 
@@ -37,6 +38,9 @@ public class SwerveDrivetrain {
 
     private static double holdAngle;
 
+    /** Initialize the swerve drive system. This function should only be called once.
+     * @param gyro The gyro for the swerve system to use.
+     */
     public static void init(AHRS gyro) {
         gyroscope = gyro;
         gyro.reset();
@@ -72,21 +76,35 @@ public class SwerveDrivetrain {
         });
     }
 
+    /** Get the current angle of the drivetrain, in radians.
+     * @return The current angle of the drivetrain, in radians.
+     */
     private static double getAngle() {
         return gyroscope.getAngle() / 180 * -Math.PI;
     }
 
+    /** Reset the hold angle to the current drivetrain angle. */
     public static void resetHoldAngle() {
         holdAngle = getAngle();
     }
 
+    /** Drive the robot with the given input.
+     * @param inputs The InputPacket containing all inputs for the current period.
+     * @param periodSeconds The duration of the current period, in seconds.
+     */
     public static void drive(
         InputPacket inputs,
         double periodSeconds
         ) {
-        double xSpeed = xSpeedLimiter.calculate(inputs.xSpeed()) * SwerveConstants.maxSpeed * inputs.getSpeedMod();
-        double ySpeed = ySpeedLimiter.calculate(inputs.ySpeed()) * SwerveConstants.maxSpeed * inputs.getSpeedMod();
-        double rotSpeed = rotSpeedLimiter.calculate(inputs.rotSpeed()) * SwerveConstants.maxAngularVelocity * inputs.getSpeedMod();
+        double xSpeed = xSpeedLimiter.calculate(inputs.xSpeed()) * SwerveConstants.maxSpeed;
+        double ySpeed = ySpeedLimiter.calculate(inputs.ySpeed()) * SwerveConstants.maxSpeed;
+        double rotSpeed = rotSpeedLimiter.calculate(inputs.rotSpeed()) * SwerveConstants.maxAngularVelocity;
+
+        if (inputs.slowMode()) {
+            xSpeed *= DriveConstants.slowModeModifier;
+            ySpeed *= DriveConstants.slowModeModifier;
+            rotSpeed *= DriveConstants.slowModeModifier;
+        }
 
         if ((xSpeed != 0 || ySpeed != 0) && rotSpeed == 0) {
             rotSpeed = 0.6 * (holdAngle - getAngle());
@@ -112,6 +130,7 @@ public class SwerveDrivetrain {
         }
     }
 
+    /** Udpate the odometry of the swerve drive */
     public static void updateOdometry() {
         odometry.update(
             gyroscope.getRotation2d(),

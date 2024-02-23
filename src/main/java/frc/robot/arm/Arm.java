@@ -4,11 +4,13 @@ import frc.robot.InputPacket;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.InputPacket.ArmCommand;
 
+/** A class representing the complete arm mechanism */
 public class Arm {
     private ArmMechanism rotator;
     private Shooter shooter;
     private Intake intake;
 
+    /** Create a new Arm */
     public Arm() {
         rotator = new ArmMechanism(ArmConstants.leftRotationPort, ArmConstants.rightRotationPort);
         shooter = new Shooter(ArmConstants.leftShooterPort, ArmConstants.rightShooterPort);
@@ -17,13 +19,17 @@ public class Arm {
 
     private int shooterSpoolCounter = 0;
     private ShooterState shooterState = ShooterState.Waiting;
+    /** Reset internal arm values that should be reset when the the robot is enabled in any mode */
     public void onModeInit() {
         rotator.resetHoldAngle();
         shooterSpoolCounter = 0;
         shooterState = ShooterState.Waiting;
     }
 
-    private void handleArmCommand(ArmCommand command) {
+    /** Execute the given arm command.
+     * @param command The arm command to process.
+     */
+    private void executeCommand(ArmCommand command) {
         switch (command) {
         case None: {} break;
         case Zero:
@@ -47,6 +53,9 @@ public class Arm {
 
     private double shooterSpeed;
     private double intakeSpeed;
+    /** Use the given inputs to update shooterSpeed and intakeSpeed while performing automatic shooter spooling.
+     * @param inputs The InputPacket of the current period.
+     */
     private void handleShooterSpool(InputPacket inputs) {
         shooterSpeed = inputs.shooterSpeed();
         intakeSpeed = inputs.intakeSpeed();
@@ -85,16 +94,20 @@ public class Arm {
         }
     }
 
+    /** Process the given inputs to manipulate the arm.
+     * @param inputs The InputPacket of the current period.
+     */
     public void handleInputs(InputPacket inputs) {
         rotator.setRotationSpeed(inputs.armRotSpeed() * ArmConstants.rotSpeed);
 
-        handleArmCommand(inputs.command());
+        executeCommand(inputs.command());
         handleShooterSpool(inputs);
 
         shooter.setSpeed(shooterSpeed);
         intake.setSpeed(intakeSpeed);
     }
 
+    /** An enum that represents the current state of the shooter in the automatic spooling system */
     private static enum ShooterState {
         Waiting,
         Spooling,

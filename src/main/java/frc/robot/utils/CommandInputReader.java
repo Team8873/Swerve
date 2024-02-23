@@ -1,5 +1,6 @@
 package frc.robot.utils;
 
+/** A class that is able to read command inputs from a POV hat */
 public class CommandInputReader {
     private static CommandInputReader instance;
 
@@ -7,12 +8,18 @@ public class CommandInputReader {
     private final int timeout;
 
     private int inputTimer;
+    /** Create a new CommandInputReader with the given timeout.
+     * @param timeout How many periods before the current input should be reset.
+     */
     private CommandInputReader(int timeout) {
         currentSequence = InputSequence.None;
         this.timeout = timeout;
         inputTimer = 0;
     }
 
+    /** Get the current instance of CommandInputReader, or create it if it does not exist.
+     * @return The current instance of CommandInputReader.
+     */
     public static CommandInputReader getInstance() {
         if (instance == null) {
             instance = new CommandInputReader(25);
@@ -20,6 +27,10 @@ public class CommandInputReader {
         return instance;
     }
 
+    /** Process the given POV hat value and get the current input sequence.
+     * @param pov The position POV hat value.
+     * @return The current input sequence.
+     */
     public InputSequence processHat(int pov) {
         if (inputTimer >= timeout) {
             currentSequence = InputSequence.None;
@@ -80,6 +91,7 @@ public class CommandInputReader {
         return currentSequence;
     }
 
+    /** An enum that represents command input sequences */
     public static enum InputSequence {
         None,
         _2,
