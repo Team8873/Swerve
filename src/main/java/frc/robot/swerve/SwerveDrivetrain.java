@@ -4,11 +4,14 @@ import java.util.List;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import frc.robot.InputPacket;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.UIConstants;
 import frc.robot.utils.Position;
@@ -28,11 +31,16 @@ public class SwerveDrivetrain {
     private static SimpleNumber turnI;
     private static SimpleNumber turnD;
 
-    public static boolean shouldFineTune;
+    private static SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(DriveConstants.rateLimit);
+    private static SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(DriveConstants.rateLimit);
+    private static SlewRateLimiter rotSpeedLimiter = new SlewRateLimiter(DriveConstants.rateLimit);
+
+    private static double holdAngle;
 
     public static void init(AHRS gyro) {
         gyroscope = gyro;
         gyro.reset();
+        holdAngle = 0.0;
 
         modules = SwerveConstants.settings
             .stream()
@@ -64,15 +72,36 @@ public class SwerveDrivetrain {
         });
     }
 
+    private static double getAngle() {
+        return gyroscope.getAngle() / 180 * -Math.PI;
+    }
+
+    public static void resetHoldAngle() {
+        holdAngle = getAngle();
+    }
+
     public static void drive(
-        double xSpeed,
-        double ySpeed,
-        double rot,
-        boolean fieldRel,
+        InputPacket inputs,
         double periodSeconds
         ) {
+        double xSpeed = xSpeedLimiter.calculate(inputs.xSpeed()) * SwerveConstants.maxSpeed * inputs.getSpeedMod();
+        double ySpeed = ySpeedLimiter.calculate(inputs.ySpeed()) * SwerveConstants.maxSpeed * inputs.getSpeedMod();
+        double rotSpeed = rotSpeedLimiter.calculate(inputs.rotSpeed()) * SwerveConstants.maxAngularVelocity * inputs.getSpeedMod();
+
+        if ((xSpeed != 0 || ySpeed != 0) && rotSpeed == 0) {
+            rotSpeed = 0.6 * (holdAngle - getAngle());
+        } else {
+            resetHoldAngle();
+        }
+
         var moduleStates = kinematics.toSwerveModuleStates(
-            ChassisSpeeds.discretize(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, new Rotation2d(gyroscope.getAngle() * -1 / 180 * Math.PI)), periodSeconds
+            ChassisSpeeds.discretize(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    xSpeed,
+                    ySpeed,
+                    rotSpeed,
+                    new Rotation2d(gyroscope.getAngle() * -1 / 180 * Math.PI)),
+                    periodSeconds
         ));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, SwerveConstants.maxSpeed);
