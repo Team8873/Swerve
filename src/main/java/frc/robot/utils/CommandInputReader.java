@@ -90,26 +90,6 @@ public class CommandInputReader {
             }
         } break;
         case _214:
-        {
-            if (pov == Pov.HAT_UP_LEFT) {
-                currentSequence = InputSequence._2147;
-                inputTimer = 0;
-            } else if (pov != Pov.HAT_LEFT) {
-                currentSequence = InputSequence.None;
-                inputTimer = 0;
-            }
-        } break;
-        case _2147:
-        {
-            if (pov == Pov.HAT_UP) {
-                currentSequence = InputSequence._21478;
-                inputTimer = 0;
-            } else if (pov != Pov.HAT_UP_LEFT) {
-                currentSequence = InputSequence.None;
-                inputTimer = 0;
-            }
-        } break;
-        case _21478:
         case _236: {} break;
         }
 
@@ -124,7 +104,5 @@ public class CommandInputReader {
         _236,
         _21,
         _214,
-        _2147,
-        _21478,
     }
 }

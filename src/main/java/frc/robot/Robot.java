@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.UIConstants;
+import frc.robot.Tracking.TrackingState;
 import frc.robot.arm.Arm;
 import frc.robot.swerve.SwerveDrivetrain;
 import frc.robot.utils.ParameterStore;
@@ -44,14 +45,16 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     SwerveDrivetrain.resetHoldAngle();
+    Tracking.getInstance().setState(TrackingState.None);
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
     var inputs = InputPacket.readFromController(driveController, operatorController);
+    if (inputs.tracking() != TrackingState.None) Tracking.getInstance().setState(inputs.tracking());
     SwerveDrivetrain.drive(inputs, getPeriod());
-    arm.handleInputs(inputs);
+    arm.handleInputs(inputs); 
   }
 
   @Override

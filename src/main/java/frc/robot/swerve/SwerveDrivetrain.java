@@ -11,9 +11,11 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import frc.robot.InputPacket;
+import frc.robot.Tracking;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.UIConstants;
+import frc.robot.Tracking.TrackingState;
 import frc.robot.utils.Position;
 import frc.robot.utils.SimpleButton;
 import frc.robot.utils.SimpleNumber;
@@ -110,6 +112,14 @@ public class SwerveDrivetrain {
             xSpeed *= DriveConstants.slowModeModifier;
             ySpeed *= DriveConstants.slowModeModifier;
             rotSpeed *= DriveConstants.slowModeModifier;
+        }
+
+        if (rotSpeed != 0) {
+            Tracking.getInstance().setState(TrackingState.None);
+        }
+
+        if (Tracking.getInstance().getState() != TrackingState.None) {
+            rotSpeed = Tracking.getInstance().getRobotRotationSpeed();
         }
 
         if ((xSpeed != 0 || ySpeed != 0) && rotSpeed == 0) {

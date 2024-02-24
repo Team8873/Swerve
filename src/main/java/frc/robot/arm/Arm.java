@@ -1,8 +1,10 @@
 package frc.robot.arm;
 
 import frc.robot.InputPacket;
+import frc.robot.Tracking;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.InputPacket.ArmCommand;
+import frc.robot.Tracking.TrackingState;
 
 /** A class representing the complete arm mechanism */
 public class Arm {
@@ -19,13 +21,11 @@ public class Arm {
 
     private int shooterSpoolCounter = 0;
     private ShooterState shooterState = ShooterState.Waiting;
-    private boolean isTrackingAmp = false;
     /** Reset internal arm values that should be reset when the the robot is enabled in any mode */
     public void onModeInit() {
         rotator.resetHoldAngle();
         shooterSpoolCounter = 0;
         shooterState = ShooterState.Waiting;
-        isTrackingAmp = false;
     }
 
     /** Execute the given arm command.
@@ -46,18 +46,6 @@ public class Arm {
         {
             rotator.setHoldAngle(ArmConstants.armShoot);
         } break;
-        case ToAmp:
-        {
-            isTrackingAmp = true;
-        } break;
-        case TrackAmp:
-        {
-        } break;
-
-        }
-
-        if (isTrackingAmp) {
-            rotator.setHoldAngle(ArmConstants.armAmp);
         }
     }
 
@@ -109,9 +97,17 @@ public class Arm {
      * @param inputs The InputPacket of the current period.
      */
     public void handleInputs(InputPacket inputs) {
-        rotator.setRotationSpeed(inputs.armRotSpeed() * ArmConstants.rotSpeed, !inputs.disableArmLimits());
+        if (inputs.armRotSpeed() != 0.0) {
+            Tracking.getInstance().setState(TrackingState.None);
+        }
 
-        executeCommand(inputs.command());
+        if (Tracking.getInstance().getState() != TrackingState.None) {
+            rotator.setRotationSpeed(inputs.armRotSpeed() * ArmConstants.rotSpeed, !inputs.disableArmLimits());
+            executeCommand(inputs.command());
+        } else {
+            rotator.setHoldAngle(Tracking.getInstance().getArmAngle());
+        }
+
         handleShooterSpool(inputs);
 
         shooter.setSpeed(shooterSpeed);

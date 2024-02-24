@@ -4,10 +4,11 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Tracking.TrackingState;
 import frc.robot.utils.CommandInputReader;
 import frc.robot.utils.Pov;
 
-public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double armRotSpeed, double intakeSpeed, double shooterSpeed, boolean slowMode, ArmCommand command, boolean disableArmLimits) {
+public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double armRotSpeed, double intakeSpeed, double shooterSpeed, boolean slowMode, ArmCommand command, boolean disableArmLimits, TrackingState tracking) {
 
     /** Create an InputPacket from the controllers inputs.
      * @param drive The main drive controller.
@@ -17,33 +18,29 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
         int pov = operator.getPOV();
 
         ArmCommand command = ArmCommand.None;
+        TrackingState tracking = TrackingState.None;
 
         switch (CommandInputReader.getInstance().processHat(pov)) {
         case None:
         case _2:
         case _21:
         case _23:
-        case _2147:
         {
             drive.setRumble(RumbleType.kBothRumble, 0.0);
             command = commandFromHat(pov, operator);
+            tracking = trackingFromHat(pov, operator);
         } break;
         case _214:
         {
             operator.setRumble(RumbleType.kBothRumble, 1.0);
             if (operator.getAButtonPressed()) command = ArmCommand.ToShoot;
-            if (operator.getBButtonPressed()) command = ArmCommand.ToAmp;
+            if (operator.getBButtonPressed()) tracking = TrackingState.Amp;
         } break;
         case _236:
         {
             operator.setRumble(RumbleType.kBothRumble, 1.0);
             if (operator.getAButtonPressed()) command = ArmCommand.ToGround;
             if (operator.getBButtonPressed()) command = ArmCommand.Zero;
-        } break;
-        case _21478:
-        {
-            operator.setRumble(RumbleType.kBothRumble, 1.0);
-            if (operator.getAButtonPressed()) command = ArmCommand.TrackAmp;
         } break;
         }
 
@@ -57,7 +54,8 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
             MathUtil.applyDeadband(operator.getLeftTriggerAxis(), DriveConstants.deadband),
             drive.getRightBumper(),
             command,
-            operator.getXButton());
+            operator.getXButton(),
+            tracking);
     }
 
     /** Convert the current POV hat input into an arm command.
@@ -71,19 +69,26 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
         case Pov.HAT_UP:
         {
             if (controller.getAButton()) command = ArmCommand.ToShoot;
-            if (controller.getYButton()) command = ArmCommand.TrackAmp;
         } break;
         case Pov.HAT_DOWN:
         {
             if (controller.getBButton()) command = ArmCommand.Zero;
             if (controller.getAButton()) command = ArmCommand.ToGround;
         } break;
-        case Pov.HAT_LEFT:
-        {
-            if (controller.getAButton()) command = ArmCommand.ToAmp;
-        } break;
         }
         return command;
+    }
+
+    private static TrackingState trackingFromHat(int pov, XboxController controller) {
+        TrackingState state = TrackingState.None;
+        switch (pov)
+        {
+        case Pov.HAT_LEFT:
+        {
+            if (controller.getAButton()) state = TrackingState.Amp;
+        } break;
+        }
+        return state;
     }
 
     /** An enum representing the possible preset arm commands */
@@ -92,7 +97,5 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
         Zero,
         ToGround,
         ToShoot,
-        ToAmp,
-        TrackAmp,
     }
 }
