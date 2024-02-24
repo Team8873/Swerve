@@ -7,48 +7,57 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.utils.CommandInputReader;
 import frc.robot.utils.Pov;
 
-public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double armRotSpeed, double intakeSpeed, double shooterSpeed, boolean slowMode, ArmCommand command) {
+public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double armRotSpeed, double intakeSpeed, double shooterSpeed, boolean slowMode, ArmCommand command, boolean disableArmLimits) {
 
     /** Create an InputPacket from the controllers inputs.
-     * @param controller The main drive controller.
+     * @param drive The main drive controller.
      * @return The InputPacket read from the controller.
      */
-    public static InputPacket readFromController(XboxController controller) {
-        int pov = controller.getPOV();
+    public static InputPacket readFromController(XboxController drive, XboxController operator) {
+        int pov = operator.getPOV();
+
         ArmCommand command = ArmCommand.None;
 
         switch (CommandInputReader.getInstance().processHat(pov)) {
-            case None:
-            case _2:
-            case _21:
-            case _23:
-            {
-                controller.setRumble(RumbleType.kBothRumble, 0.0);
-                command = commandFromHat(pov, controller);
-            } break;
-            case _214:
-            {
-                controller.setRumble(RumbleType.kBothRumble, 1.0);
-                if (controller.getAButtonPressed()) command = ArmCommand.ToShoot;
-                if (controller.getBButtonPressed()) command = ArmCommand.ToAmp;
-            } break;
-            case _236:
-            {
-                controller.setRumble(RumbleType.kBothRumble, 1.0);
-                if (controller.getAButtonPressed()) command = ArmCommand.ToGround;
-                if (controller.getBButtonPressed()) command = ArmCommand.Zero;
-            }
+        case None:
+        case _2:
+        case _21:
+        case _23:
+        case _2147:
+        {
+            drive.setRumble(RumbleType.kBothRumble, 0.0);
+            command = commandFromHat(pov, operator);
+        } break;
+        case _214:
+        {
+            operator.setRumble(RumbleType.kBothRumble, 1.0);
+            if (operator.getAButtonPressed()) command = ArmCommand.ToShoot;
+            if (operator.getBButtonPressed()) command = ArmCommand.ToAmp;
+        } break;
+        case _236:
+        {
+            operator.setRumble(RumbleType.kBothRumble, 1.0);
+            if (operator.getAButtonPressed()) command = ArmCommand.ToGround;
+            if (operator.getBButtonPressed()) command = ArmCommand.Zero;
+        } break;
+        case _21478:
+        {
+            operator.setRumble(RumbleType.kBothRumble, 1.0);
+            if (operator.getAButtonPressed()) command = ArmCommand.TrackAmp;
+        } break;
         }
 
         return new InputPacket(
-            -MathUtil.applyDeadband(controller.getLeftY(), DriveConstants.deadband),
-            -MathUtil.applyDeadband(controller.getLeftX(), DriveConstants.deadband),
-            MathUtil.applyDeadband(controller.getRightX(), DriveConstants.deadband),
-            (controller.getLeftBumper() ? -1.0 : 0.0) + (controller.getRightBumper() ? 1.0 : 0.0),
-            MathUtil.applyDeadband(controller.getRightTriggerAxis(), DriveConstants.deadband),
-            MathUtil.applyDeadband(controller.getLeftTriggerAxis(), DriveConstants.deadband),
-            controller.getYButton(),
-            command);
+            -MathUtil.applyDeadband(drive.getLeftY(), DriveConstants.deadband),
+            -MathUtil.applyDeadband(drive.getLeftX(), DriveConstants.deadband),
+            MathUtil.applyDeadband(drive.getRightX(), DriveConstants.deadband),
+            // (drive.getLeftBumper() ? -1.0 : 0.0) + (drive.getRightBumper() ? 1.0 : 0.0),
+            MathUtil.applyDeadband(operator.getLeftY(), DriveConstants.deadband),
+            MathUtil.applyDeadband(operator.getRightTriggerAxis(), DriveConstants.deadband),
+            MathUtil.applyDeadband(operator.getLeftTriggerAxis(), DriveConstants.deadband),
+            drive.getRightBumper(),
+            command,
+            operator.getXButton());
     }
 
     /** Convert the current POV hat input into an arm command.
@@ -62,6 +71,7 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
         case Pov.HAT_UP:
         {
             if (controller.getAButton()) command = ArmCommand.ToShoot;
+            if (controller.getYButton()) command = ArmCommand.TrackAmp;
         } break;
         case Pov.HAT_DOWN:
         {
@@ -83,5 +93,6 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
         ToGround,
         ToShoot,
         ToAmp,
+        TrackAmp,
     }
 }

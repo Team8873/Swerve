@@ -82,7 +82,7 @@ public class ArmMechanism {
      * 
      * @param speed The speed to rotate the arm at.
      */
-    public void setRotationSpeed(double speed) {
+    public void setRotationSpeed(double speed, boolean useSoftLimit) {
         if (speed == 0.0) {
             if (!wasMoving) {
                 resetHoldAngle();
@@ -91,9 +91,13 @@ public class ArmMechanism {
 
             speed = -ArmConstants.angleHoldGain * (holdAngle - encoder.getPosition()) / 5.0;
             speed = MathUtil.clamp(speed, -ArmConstants.angleHoldMaxSpeed, ArmConstants.angleHoldMaxSpeed);
+        } else {
+            wasMoving = false;
         }
 
-        speed = applySoftStop(speed);
+        if (useSoftLimit) {
+            speed = applySoftStop(speed);
+        }
         leftMotor.set(speed);
         rightMotor.set(speed);
     }

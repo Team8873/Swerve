@@ -1,10 +1,10 @@
 package frc.robot.swerve;
 
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.UIConstants;
 import frc.robot.utils.ParameterStore;
 import frc.robot.utils.Position;
@@ -18,8 +18,6 @@ public class SwerveEncoder {
 
     private int port;
 
-    private StatusSignal<Double> rotationSignal;
-
     private double currentAngleRaw;
     private double currentAngleRadians;
 
@@ -31,18 +29,14 @@ public class SwerveEncoder {
         this.port = port;
         encoder = new CANcoder(port);
 
-        rotationSignal = encoder.getAbsolutePosition();
-
         positionName = modulePosition;
         encoderOffset = ParameterStore.get(positionName + "-offset", 0.0);
     }
 
     /** Read the angle of the module from the encoder and update internal values. */
     public void updateAngle() {
-        rotationSignal.refresh();
-
-        currentAngleRaw = rotationSignal.getValueAsDouble();
-        currentAngleRadians = MathUtil.angleModulus(Math.PI * (currentAngleRaw - encoderOffset));
+        currentAngleRaw = encoder.getPosition().getValueAsDouble();
+        currentAngleRadians = MathUtil.angleModulus((currentAngleRaw + encoderOffset) * SwerveConstants.turnEncoderScaleFactor);
     }
 
     /** Get the current rotation of the module. updateAngle() should be called before this to ensure the angle is up-to-date.
@@ -103,7 +97,7 @@ public class SwerveEncoder {
         SimpleButton.createButton(
             UIConstants.tuning,
             "Bump " + port + " -",
-            new Position(column + 1, 1),
+            new Position(column, 2),
             () -> { updateOffset(encoderOffset - 0.01); });
 
         SimpleButton.createButton(

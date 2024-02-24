@@ -14,7 +14,19 @@ import edu.wpi.first.wpilibj.Filesystem;
 
 /** A simple double parameter store that persists data between reloads */
 public class ParameterStore {
-    private static HashMap<String, Double> store;
+    private static ParameterStore instance;
+    private HashMap<String, Double> store;
+
+    /** Get the ParameterStore instance or create it and initialize is if it does not exist.
+     * @return The ParameterStore instance.
+     */
+    private static ParameterStore getInstance() {
+        if (instance == null) {
+            instance = new ParameterStore();
+            instance.initialize();
+        }
+        return instance;
+    }
 
     /** Get the value associated with the given key, or associate that key with a default value if it is not in the store.
      * 
@@ -23,7 +35,7 @@ public class ParameterStore {
      * @return The value in the store, or the default value if the key was not present in the store.
      */
     public static Double get(String key, Double defaultValue) {
-        Double value = store.putIfAbsent(key, defaultValue);
+        Double value = getInstance().store.putIfAbsent(key, defaultValue);
         if (value == null) value = defaultValue;
         return value;
     }
@@ -34,11 +46,11 @@ public class ParameterStore {
      * @param value The value to set it to.
      */
     public static void set(String key, Double value) {
-        store.put(key, value);
+        getInstance().store.put(key, value);
     }
 
     /** Initialize the parameter store from persistent storage. */
-    public static void initialize() {
+    private void initialize() {
         store = new HashMap<>();
 
         File dataFile = Paths
@@ -72,7 +84,7 @@ public class ParameterStore {
         .toFile();
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(dataFile))) {
-            store.forEach((s, d) -> {
+            getInstance().store.forEach((s, d) -> {
                 try {
                     writer.write(s + "," + d + "\n");
                 }

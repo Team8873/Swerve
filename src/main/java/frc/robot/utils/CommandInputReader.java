@@ -1,5 +1,7 @@
 package frc.robot.utils;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /** A class that is able to read command inputs from a POV hat */
 public class CommandInputReader {
     private static CommandInputReader instance;
@@ -39,6 +41,9 @@ public class CommandInputReader {
 
         ++inputTimer;
 
+        SmartDashboard.putNumber("input timer", inputTimer);
+        SmartDashboard.putString("input seq", currentSequence.toString());
+
         if (pov == Pov.HAT_NONE) {
             return currentSequence;
         }
@@ -48,8 +53,8 @@ public class CommandInputReader {
         {
             if (pov == Pov.HAT_DOWN) {
                 currentSequence = InputSequence._2;
-                inputTimer = 0;
             }
+            inputTimer = 0;
         } break;
         case _2:
         {
@@ -85,6 +90,26 @@ public class CommandInputReader {
             }
         } break;
         case _214:
+        {
+            if (pov == Pov.HAT_UP_LEFT) {
+                currentSequence = InputSequence._2147;
+                inputTimer = 0;
+            } else if (pov != Pov.HAT_LEFT) {
+                currentSequence = InputSequence.None;
+                inputTimer = 0;
+            }
+        } break;
+        case _2147:
+        {
+            if (pov == Pov.HAT_UP) {
+                currentSequence = InputSequence._21478;
+                inputTimer = 0;
+            } else if (pov != Pov.HAT_UP_LEFT) {
+                currentSequence = InputSequence.None;
+                inputTimer = 0;
+            }
+        } break;
+        case _21478:
         case _236: {} break;
         }
 
@@ -99,5 +124,7 @@ public class CommandInputReader {
         _236,
         _21,
         _214,
+        _2147,
+        _21478,
     }
 }

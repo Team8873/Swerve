@@ -26,6 +26,10 @@ public class SwerveModule {
         encoder.setupUI(settings.name, settings.columnBase);
     }
 
+    public void updateEncoder() {
+        encoder.updateAngle();
+    }
+
     /** Get the position of this module.
      * @return The position of this module.
      */

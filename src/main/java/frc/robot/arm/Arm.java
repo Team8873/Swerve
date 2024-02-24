@@ -19,11 +19,13 @@ public class Arm {
 
     private int shooterSpoolCounter = 0;
     private ShooterState shooterState = ShooterState.Waiting;
+    private boolean isTrackingAmp = false;
     /** Reset internal arm values that should be reset when the the robot is enabled in any mode */
     public void onModeInit() {
         rotator.resetHoldAngle();
         shooterSpoolCounter = 0;
         shooterState = ShooterState.Waiting;
+        isTrackingAmp = false;
     }
 
     /** Execute the given arm command.
@@ -38,16 +40,24 @@ public class Arm {
         } break;
         case ToGround:
         {
-            rotator.setHoldAngle(0.0);
+            rotator.setHoldAngle(ArmConstants.armGround);
         } break;
         case ToShoot:
         {
-            rotator.setHoldAngle(-30.0);
+            rotator.setHoldAngle(ArmConstants.armShoot);
         } break;
         case ToAmp:
         {
-            rotator.setHoldAngle(-74.0);
+            isTrackingAmp = true;
         } break;
+        case TrackAmp:
+        {
+        } break;
+
+        }
+
+        if (isTrackingAmp) {
+            rotator.setHoldAngle(ArmConstants.armAmp);
         }
     }
 
@@ -91,6 +101,7 @@ public class Arm {
         } else {
             shooterSpoolCounter = 0;
             intakeSpeed *= ArmConstants.intakeSpeed;
+            shooterState = ShooterState.Waiting;
         }
     }
 
@@ -98,7 +109,7 @@ public class Arm {
      * @param inputs The InputPacket of the current period.
      */
     public void handleInputs(InputPacket inputs) {
-        rotator.setRotationSpeed(inputs.armRotSpeed() * ArmConstants.rotSpeed);
+        rotator.setRotationSpeed(inputs.armRotSpeed() * ArmConstants.rotSpeed, !inputs.disableArmLimits());
 
         executeCommand(inputs.command());
         handleShooterSpool(inputs);

@@ -19,7 +19,8 @@ import frc.robot.utils.SimpleButton;
 
 public class Robot extends TimedRobot {
   private final AHRS gyroscope = new AHRS();
-  private final XboxController controller = new XboxController(DriveConstants.controllerPort);
+  private final XboxController driveController = new XboxController(DriveConstants.controllerPort);
+  private final XboxController operatorController = new XboxController(DriveConstants.operatorPort);
   private Arm arm;
 
   @Override
@@ -27,7 +28,7 @@ public class Robot extends TimedRobot {
     SwerveDrivetrain.init(gyroscope);
     arm = new Arm();
 
-    SimpleButton.createButton(UIConstants.tuning, "Save", new Position(0, 6), ParameterStore::saveStore);
+    SimpleButton.createButton(UIConstants.tuning, "Save", new Position(0,4), ParameterStore::saveStore);
   }
 
   @Override
@@ -36,6 +37,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     SimpleButton.updateAll();
+    SwerveDrivetrain.updateEncoders();
   }
 
   /** This function is called once when teleop is enabled. */
@@ -47,7 +49,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    var inputs = InputPacket.readFromController(controller);
+    var inputs = InputPacket.readFromController(driveController, operatorController);
     SwerveDrivetrain.drive(inputs, getPeriod());
     arm.handleInputs(inputs);
   }

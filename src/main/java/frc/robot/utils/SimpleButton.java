@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 /** A class that manages simple push buttons on Shuffleboard */
 public class SimpleButton {
-    private static ArrayList<SimpleButton> instances;
+    private static ArrayList<SimpleButton> instances = new ArrayList<>();
     private GenericEntry entry;
     private Runnable callback;
 

@@ -39,7 +39,8 @@ public class SwerveTurnMotor {
      */
     public void setTarget(double target) {
         rotationTarget = target;
-        rotationSpeed = turningController.calculate(rotationTarget, encoder.getAngle().getRadians());
+        rotationSpeed = turningController.calculate(encoder.getAngle().getRadians(), target);
+        motor.set(rotationSpeed);
     }
 
     /** Update the PID gains of this motor.

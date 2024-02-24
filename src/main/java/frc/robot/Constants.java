@@ -107,11 +107,17 @@ public class Constants {
         public static final double angleHoldGain = -0.24;
         /** The maximum speed of the angle hold system, on [0,1] */
         public static final double angleHoldMaxSpeed = 0.6;
+
+        public static final double armGround = 0.0;
+        public static final double armShoot = -30.0;
+        public static final double armAmp = -74.0;
     }
 
     public static class DriveConstants {
         /** The port of the main drive controller */
         public static final int controllerPort = 0;
+        /** The port of the operator controller */
+        public static final int operatorPort = 1;
         /** The maximum rate of change of the drive inputs */
         public static final double rateLimit = 2.0;
         /** The deadband for all analog axes */

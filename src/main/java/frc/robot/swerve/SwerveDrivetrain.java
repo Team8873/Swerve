@@ -63,17 +63,23 @@ public class SwerveDrivetrain {
             modules.stream().map(m -> m.getPosition()).toArray(s -> new SwerveModulePosition[s]));
 
         final PIDSettings defaultPID = SwerveConstants.getTurnPID();
-        turnP = new SimpleNumber(UIConstants.tuning, "Turning P", new Position(3, 6), defaultPID.p());
-        turnI = new SimpleNumber(UIConstants.tuning, "Turning I", new Position(4, 6), defaultPID.i());
-        turnD = new SimpleNumber(UIConstants.tuning, "Turning D", new Position(5, 6), defaultPID.d());
+        turnP = new SimpleNumber(UIConstants.tuning, "Turning P", new Position(3, 4), defaultPID.p());
+        turnI = new SimpleNumber(UIConstants.tuning, "Turning I", new Position(4, 4), defaultPID.i());
+        turnD = new SimpleNumber(UIConstants.tuning, "Turning D", new Position(5, 4), defaultPID.d());
 
-        SimpleButton.createButton(UIConstants.tuning, "Update PID", new Position(6, 6), () -> {
+        SimpleButton.createButton(UIConstants.tuning, "Update PID", new Position(6, 4), () -> {
             final PIDSettings settings = new PIDSettings(turnP.get(), turnI.get(), turnD.get());
             for (var module : modules) {
                 module.updateTurningPID(settings);
             }
             SwerveConstants.setTurnPID(settings);
         });
+    }
+
+    public static void updateEncoders() {
+        for (var module : modules) {
+            module.updateEncoder();
+        }
     }
 
     /** Get the current angle of the drivetrain, in radians.
