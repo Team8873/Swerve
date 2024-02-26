@@ -118,6 +118,18 @@ public class Constants {
         public static final double armAmp = -74.0;
     }
 
+    public static class ClimberConstants {
+        public static final int leftMotorPort = 18;
+        public static final int rightMotorPort = 19;
+
+        public static final double climberMaxSpeed = 0.5;
+        public static final double climberHomeSpeed = -0.05;
+        public static final double climberHomeCurrentThreshold = 5.0;
+
+        public static final double climberMax = Double.POSITIVE_INFINITY;
+        public static final double climberMin = Double.NEGATIVE_INFINITY;
+    }
+
     public static class DriveConstants {
         /** The port of the main drive controller */
         public static final int controllerPort = 0;

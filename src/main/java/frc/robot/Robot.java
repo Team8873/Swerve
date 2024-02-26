@@ -14,6 +14,7 @@ import frc.robot.Constants.UIConstants;
 import frc.robot.tracking.Tracking.TrackingState;
 import frc.robot.tracking.Tracking;
 import frc.robot.arm.Arm;
+import frc.robot.climber.Climber;
 import frc.robot.input.InputPacket;
 import frc.robot.swerve.SwerveDrivetrain;
 import frc.robot.ui.Position;
@@ -25,11 +26,13 @@ public class Robot extends TimedRobot {
   private final XboxController driveController = new XboxController(DriveConstants.controllerPort);
   private final XboxController operatorController = new XboxController(DriveConstants.operatorPort);
   private Arm arm;
+  private Climber climber;
 
   @Override
   public void robotInit() {
     SwerveDrivetrain.init(gyroscope);
     arm = new Arm();
+    climber = new Climber();
 
     SimpleButton.createButton(UIConstants.tuning, "Save", new Position(0,4), ParameterStore::saveStore);
   }
@@ -57,6 +60,7 @@ public class Robot extends TimedRobot {
     if (inputs.tracking() != TrackingState.None) Tracking.get().setState(inputs.tracking());
     SwerveDrivetrain.drive(inputs, getPeriod());
     arm.handleInputs(inputs); 
+    climber.handleInputs(inputs);
   }
 
   @Override

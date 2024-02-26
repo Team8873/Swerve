@@ -7,7 +7,19 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.tracking.Tracking.TrackingState;
 
 /** A record representing all controller inputs used by the robot */
-public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double armRotSpeed, double intakeSpeed, double shooterSpeed, boolean slowMode, ArmCommand command, boolean disableArmLimits, TrackingState tracking) {
+public record InputPacket(
+    double xSpeed,
+    double ySpeed,
+    double rotSpeed,
+    double armRotSpeed,
+    double intakeSpeed,
+    double shooterSpeed,
+    boolean slowMode,
+    ArmCommand command,
+    boolean disableArmLimits,
+    TrackingState tracking,
+    double climberSpeed,
+    boolean homeClimber) {
 
     /** Create an InputPacket from the controllers inputs.
      * @param drive The main drive controller.
@@ -54,7 +66,9 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
             drive.getRightBumper(),
             command,
             operator.getXButton(),
-            tracking);
+            tracking,
+            -MathUtil.applyDeadband(operator.getRightY(), DriveConstants.deadband),
+            operator.getYButton() && operator.getPOV() == Pov.HAT_DOWN);
     }
 
     /** Convert the current POV hat input into an arm command.
