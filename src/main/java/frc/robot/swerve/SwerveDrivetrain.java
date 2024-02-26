@@ -10,15 +10,15 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import frc.robot.InputPacket;
-import frc.robot.Tracking;
+import frc.robot.tracking.Tracking;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.UIConstants;
-import frc.robot.Tracking.TrackingState;
-import frc.robot.utils.Position;
-import frc.robot.utils.SimpleButton;
-import frc.robot.utils.SimpleNumber;
+import frc.robot.input.InputPacket;
+import frc.robot.tracking.Tracking.TrackingState;
+import frc.robot.ui.Position;
+import frc.robot.ui.SimpleButton;
+import frc.robot.ui.SimpleNumber;
 import frc.robot.utils.PIDSettings;
 
 /** A class representing a complete swerve drive system */

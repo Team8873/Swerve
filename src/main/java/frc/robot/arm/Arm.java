@@ -1,10 +1,10 @@
 package frc.robot.arm;
 
-import frc.robot.InputPacket;
-import frc.robot.Tracking;
+import frc.robot.tracking.Tracking;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.InputPacket.ArmCommand;
-import frc.robot.Tracking.TrackingState;
+import frc.robot.input.InputPacket;
+import frc.robot.input.InputPacket.ArmCommand;
+import frc.robot.tracking.Tracking.TrackingState;
 
 /** A class representing the complete arm mechanism */
 public class Arm {

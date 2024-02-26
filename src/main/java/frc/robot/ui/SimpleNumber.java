@@ -1,4 +1,4 @@
-package frc.robot.utils;
+package frc.robot.ui;
 
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;

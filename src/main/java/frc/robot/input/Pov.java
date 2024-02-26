@@ -1,4 +1,4 @@
-package frc.robot.utils;
+package frc.robot.input;
 
 /** A class that contains named constants for POV hat directions */
 public class Pov {

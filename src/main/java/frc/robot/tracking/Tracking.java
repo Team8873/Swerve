@@ -1,9 +1,8 @@
-package frc.robot;
+package frc.robot.tracking;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.utils.Limelight;
 
 /** A class that is used to manage tracking */
 public class Tracking {

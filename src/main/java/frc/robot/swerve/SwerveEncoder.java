@@ -6,9 +6,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.UIConstants;
+import frc.robot.ui.Position;
+import frc.robot.ui.SimpleButton;
 import frc.robot.utils.ParameterStore;
-import frc.robot.utils.Position;
-import frc.robot.utils.SimpleButton;
 
 /** A class representing a swerve drive encoder */
 public class SwerveEncoder {

@@ -11,12 +11,14 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.UIConstants;
-import frc.robot.Tracking.TrackingState;
+import frc.robot.tracking.Tracking.TrackingState;
+import frc.robot.tracking.Tracking;
 import frc.robot.arm.Arm;
+import frc.robot.input.InputPacket;
 import frc.robot.swerve.SwerveDrivetrain;
+import frc.robot.ui.Position;
+import frc.robot.ui.SimpleButton;
 import frc.robot.utils.ParameterStore;
-import frc.robot.utils.Position;
-import frc.robot.utils.SimpleButton;
 
 public class Robot extends TimedRobot {
   private final AHRS gyroscope = new AHRS();

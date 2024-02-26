@@ -1,12 +1,10 @@
-package frc.robot;
+package frc.robot.input;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Tracking.TrackingState;
-import frc.robot.utils.CommandInputReader;
-import frc.robot.utils.Pov;
+import frc.robot.tracking.Tracking.TrackingState;
 
 /** A record representing all controller inputs used by the robot */
 public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double armRotSpeed, double intakeSpeed, double shooterSpeed, boolean slowMode, ArmCommand command, boolean disableArmLimits, TrackingState tracking) {
