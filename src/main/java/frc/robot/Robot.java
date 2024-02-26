@@ -47,14 +47,14 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     SwerveDrivetrain.resetHoldAngle();
-    Tracking.getInstance().setState(TrackingState.None);
+    Tracking.get().setState(TrackingState.None);
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
     var inputs = InputPacket.readFromController(driveController, operatorController);
-    if (inputs.tracking() != TrackingState.None) Tracking.getInstance().setState(inputs.tracking());
+    if (inputs.tracking() != TrackingState.None) Tracking.get().setState(inputs.tracking());
     SwerveDrivetrain.drive(inputs, getPeriod());
     arm.handleInputs(inputs); 
   }

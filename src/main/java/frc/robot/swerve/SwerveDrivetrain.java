@@ -116,11 +116,11 @@ public class SwerveDrivetrain {
         }
 
         if (rotSpeed != 0) {
-            Tracking.getInstance().setState(TrackingState.None);
+            Tracking.get().setState(TrackingState.None);
         }
 
-        if (Tracking.getInstance().getState() != TrackingState.None) {
-            rotSpeed = Tracking.getInstance().getRobotRotationSpeed();
+        if (Tracking.get().getState() != TrackingState.None) {
+            rotSpeed = Tracking.get().getRobotRotationSpeed();
         }
 
         if ((xSpeed != 0 || ySpeed != 0) && rotSpeed == 0) {

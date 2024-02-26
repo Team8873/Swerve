@@ -13,7 +13,7 @@ public class Tracking {
     /** Get the current instance of the tracking system, or create it if it does not exist yet.
      * @return The current intance of the tracking system.
      */
-    public static Tracking getInstance() {
+    public static Tracking get() {
         if (instance == null) {
             instance = new Tracking();
         }
@@ -36,6 +36,14 @@ public class Tracking {
                 Limelight.setPriority(5);
             }
         }
+    }
+
+    public static boolean enabled() {
+        return get().state != TrackingState.None;
+    }
+
+    public static boolean disabled() {
+        return get().state == TrackingState.None;
     }
 
     /** Get the current state of the tracking system.
