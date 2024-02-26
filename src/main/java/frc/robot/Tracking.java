@@ -5,11 +5,15 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.utils.Limelight;
 
+/** A class that is used to manage tracking */
 public class Tracking {
     private static Tracking instance;
 
     private TrackingState state = TrackingState.None;
-   
+    
+    /** Get the current instance of the tracking system, or create it if it does not exist yet.
+     * @return The current intance of the tracking system.
+     */
     public static Tracking getInstance() {
         if (instance == null) {
             instance = new Tracking();
@@ -17,6 +21,9 @@ public class Tracking {
         return instance;
     }
 
+    /** Set the current state of the tracking system.
+     * @param state The state to set the tracking system to.
+     */
     public void setState(TrackingState state) {
         this.state = state;
 
@@ -32,11 +39,16 @@ public class Tracking {
         }
     }
 
+    /** Get the current state of the tracking system.
+     * @return The current state of the tracking system.
+     */
     public TrackingState getState() {
         return state;
     }
 
-
+    /** Get the calculated angle to hold the arm at, or 0.0 if the tracking system is disabled.
+     * @return The angle to hold the arm at.
+     */
     public double getArmAngle() {
         if (state == TrackingState.Amp) {
             return ArmConstants.armAmp;
@@ -47,6 +59,9 @@ public class Tracking {
         return 0.0;
     }
 
+    /** Get the calculated drivetrain rotation speed, or 0.0 if the tracking system is disabled.
+     * @return The drivetrain rotation speed.
+     */
     public double getRobotRotationSpeed() {
         if (state == TrackingState.Amp) {
             return -Limelight.getTagFieldPos().yaw() / 5.0;
@@ -57,6 +72,7 @@ public class Tracking {
         return 0.0;
     }
 
+    /** An enum that represents a target for the tracking system. */
     public static enum TrackingState {
         None,
         Amp,

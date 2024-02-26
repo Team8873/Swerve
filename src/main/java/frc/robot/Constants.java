@@ -43,7 +43,9 @@ public class Constants {
         /** The maximum angular acceleration of the drive train, in radians per second per second */
         public static final double maxAngularAcceleration = 4 * Math.PI;
 
+        /** The maximum angular velocity of the wheels, in radians per second */
         public static final double maxWheelAngularVelocity = 4.0 * Math.PI;
+        /** The maximum angular acceleration of the wheels, in radians per second per second */
         public static final double maxWheelAngularAcceleration = 6.0 * Math.PI;
 
         /** A list of all swerve module settings, later used by the drivetrain to initialize the swerve modules */
@@ -108,8 +110,11 @@ public class Constants {
         /** The maximum speed of the angle hold system, on [0,1] */
         public static final double angleHoldMaxSpeed = 0.6;
 
+        /** Angle of the arm when it is touching the ground */
         public static final double armGround = 0.0;
+        /** Angle of the arm when it is at the arbitrary shooting position */
         public static final double armShoot = -30.0;
+        /** Angle of the arm when it is at the amp scoring position */
         public static final double armAmp = -74.0;
     }
 

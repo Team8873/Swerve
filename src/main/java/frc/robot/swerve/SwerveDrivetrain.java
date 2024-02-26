@@ -78,6 +78,7 @@ public class SwerveDrivetrain {
         });
     }
 
+    /** Force the encoders to recalculate their stored angles. This function must be called periodically or the encoders will not update their angles. */
     public static void updateEncoders() {
         for (var module : modules) {
             module.updateEncoder();

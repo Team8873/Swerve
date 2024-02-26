@@ -8,6 +8,7 @@ import frc.robot.Tracking.TrackingState;
 import frc.robot.utils.CommandInputReader;
 import frc.robot.utils.Pov;
 
+/** A record representing all controller inputs used by the robot */
 public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double armRotSpeed, double intakeSpeed, double shooterSpeed, boolean slowMode, ArmCommand command, boolean disableArmLimits, TrackingState tracking) {
 
     /** Create an InputPacket from the controllers inputs.
@@ -60,7 +61,7 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
 
     /** Convert the current POV hat input into an arm command.
      * @param pov The current POV hat input.
-     * @param controller The main drive controller.
+     * @param controller The controller to read additional inputs from.
      * @return The arm command input by the driver.
      */
     private static ArmCommand commandFromHat(int pov, XboxController controller) {
@@ -79,6 +80,11 @@ public record InputPacket(double xSpeed, double ySpeed, double rotSpeed, double 
         return command;
     }
 
+    /** Convert the current POV hat input into a tracking command.
+     * @param pov The current POV hat input.
+     * @param controller The controller to read additional inputs from.
+     * @return The tracking command input by the driver.
+     */
     private static TrackingState trackingFromHat(int pov, XboxController controller) {
         TrackingState state = TrackingState.None;
         switch (pov)
