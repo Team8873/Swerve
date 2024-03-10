@@ -14,12 +14,19 @@ public record InputPacket(
     double armRotSpeed,
     double intakeSpeed,
     double shooterSpeed,
-    boolean slowMode,
+    double slowMod,
+    double fastMod,
     ArmCommand command,
     boolean disableArmLimits,
     TrackingState tracking,
+    boolean overrideSensor,
     double climberSpeed,
+    double overrideClimberSpeed,
     boolean homeClimber) {
+
+    public static InputPacket dummy() {
+        return new InputPacket(0, 0, 0, 0, 0, 0, 0, 0, ArmCommand.None, false, TrackingState.None, false, 0, 0, false);
+    }
 
     /** Create an InputPacket from the controllers inputs.
      * @param drive The main drive controller.
@@ -56,18 +63,21 @@ public record InputPacket(
         }
 
         return new InputPacket(
-            -MathUtil.applyDeadband(drive.getLeftY(), DriveConstants.deadband),
-            -MathUtil.applyDeadband(drive.getLeftX(), DriveConstants.deadband),
-            MathUtil.applyDeadband(drive.getRightX(), DriveConstants.deadband),
+            MathUtil.applyDeadband(drive.getLeftY(), DriveConstants.deadband),
+            MathUtil.applyDeadband(drive.getLeftX(), DriveConstants.deadband),
+            -MathUtil.applyDeadband(drive.getRightX(), DriveConstants.deadband),
             // (drive.getLeftBumper() ? -1.0 : 0.0) + (drive.getRightBumper() ? 1.0 : 0.0),
-            MathUtil.applyDeadband(operator.getLeftY(), DriveConstants.deadband),
-            MathUtil.applyDeadband(operator.getRightTriggerAxis(), DriveConstants.deadband),
+            -MathUtil.applyDeadband(operator.getLeftY(), DriveConstants.deadband),
+            MathUtil.applyDeadband(operator.getRightTriggerAxis(), DriveConstants.deadband) + (operator.getYButton() ? -1 : 0),
             MathUtil.applyDeadband(operator.getLeftTriggerAxis(), DriveConstants.deadband),
-            drive.getRightBumper(),
+            drive.getRightTriggerAxis(),
+            drive.getLeftTriggerAxis(),
             command,
             operator.getXButton(),
             tracking,
-            -MathUtil.applyDeadband(operator.getRightY(), DriveConstants.deadband),
+            operator.getXButton(),
+            (drive.getYButton() ? 1 : 0) + (drive.getAButton() ? -1 : 0),
+            (drive.getPOV() == Pov.HAT_UP ? 1 : 0) + (drive.getPOV() == Pov.HAT_DOWN ? -1 : 0),
             operator.getYButton() && operator.getPOV() == Pov.HAT_DOWN);
     }
 
@@ -87,6 +97,10 @@ public record InputPacket(
         {
             if (controller.getBButton()) command = ArmCommand.Zero;
             if (controller.getAButton()) command = ArmCommand.ToGround;
+        } break;
+        case Pov.HAT_RIGHT:
+        {
+            if (controller.getAButton()) command = ArmCommand.Up;
         } break;
         }
         return command;
@@ -115,5 +129,6 @@ public record InputPacket(
         Zero,
         ToGround,
         ToShoot,
+        Up,
     }
 }

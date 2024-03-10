@@ -28,13 +28,13 @@ public class Tracking {
 
         if (this.state == TrackingState.Amp) {
             var alliance = DriverStation.getAlliance();
-            if (alliance.isEmpty()) {
+            //if (alliance.isEmpty()) {
                 Limelight.setPriority(13);
-            } else if (alliance.get() == Alliance.Red) {
-                Limelight.setPriority(6);
-            } else {
-                Limelight.setPriority(5);
-            }
+            //} else if (alliance.get() == Alliance.Red) {
+                //Limelight.setPriority(6);
+            //} else {
+                //Limelight.setPriority(5);
+            //}
         }
     }
 
@@ -70,13 +70,14 @@ public class Tracking {
      * @return The drivetrain rotation speed.
      */
     public double getRobotRotationSpeed() {
-        if (state == TrackingState.Amp) {
-            return -Limelight.getTagFieldPos().yaw() / 5.0;
-        }
-        if (state == TrackingState.Speaker) {
-            System.out.println("[ERROR] Speaker tracking not implemented");
-        }
         return 0.0;
+        //if (state == TrackingState.Amp) {
+            //return Limelight.getTagFieldPos().yaw() / 15.0;
+        //}
+        //if (state == TrackingState.Speaker) {
+            //System.out.println("[ERROR] Speaker tracking not implemented");
+        //}
+        //return 0.0;
     }
 
     /** An enum that represents a target for the tracking system. */

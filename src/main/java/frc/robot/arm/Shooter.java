@@ -1,6 +1,7 @@
 package frc.robot.arm;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 /** A class representing the shooter on the arm */
@@ -15,6 +16,9 @@ public class Shooter {
     public Shooter(int leftMotorPort, int rightMotorPort) {
         leftMotor = new CANSparkMax(leftMotorPort, MotorType.kBrushless);
         rightMotor = new CANSparkMax(rightMotorPort, MotorType.kBrushless);
+
+        leftMotor.setIdleMode(IdleMode.kBrake);
+        rightMotor.setIdleMode(IdleMode.kBrake);
     }
 
     /** Set the speed of the shooter's motors.

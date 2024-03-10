@@ -11,7 +11,7 @@ public class Intake {
      * @param motorPort The port of the intake motor.
      */
     public Intake(int motorPort) {
-    motor = new CANSparkMax(motorPort, MotorType.kBrushless);
+        motor = new CANSparkMax(motorPort, MotorType.kBrushless);
     }
 
     /** Set the speed of the intake's motor.

@@ -22,13 +22,13 @@ public class SwerveTurnMotor {
      * @param encoder The encoder attached to this motor.
      * @param pid The PID settings to use.
      */
-    public SwerveTurnMotor(int motorPort, SwerveEncoder encoder, PIDSettings pid) {
+    public SwerveTurnMotor(int motorPort, SwerveEncoder encoder, PIDSettings pid, boolean inverted) {
         motor = new CANSparkMax(motorPort, MotorType.kBrushless);
         this.encoder = encoder;
         turningController = pid.toController();
         turningController.enableContinuousInput(-Math.PI, Math.PI);
 
-        motor.setInverted(true);
+        motor.setInverted(inverted);
 
         rotationTarget = 0.0;
         rotationSpeed = 0.0;

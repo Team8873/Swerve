@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -97,32 +98,7 @@ public class SwerveDrivetrain {
         holdAngle = getAngle();
     }
 
-    /** Drive the robot with the given input.
-     * @param inputs The InputPacket containing all inputs for the current period.
-     * @param periodSeconds The duration of the current period, in seconds.
-     */
-    public static void drive(
-        InputPacket inputs,
-        double periodSeconds
-        ) {
-        double xSpeed = xSpeedLimiter.calculate(inputs.xSpeed()) * SwerveConstants.maxSpeed;
-        double ySpeed = ySpeedLimiter.calculate(inputs.ySpeed()) * SwerveConstants.maxSpeed;
-        double rotSpeed = rotSpeedLimiter.calculate(inputs.rotSpeed()) * SwerveConstants.maxAngularVelocity;
-
-        if (inputs.slowMode()) {
-            xSpeed *= DriveConstants.slowModeModifier;
-            ySpeed *= DriveConstants.slowModeModifier;
-            rotSpeed *= DriveConstants.slowModeModifier;
-        }
-
-        if (rotSpeed != 0) {
-            Tracking.get().setState(TrackingState.None);
-        }
-
-        if (Tracking.get().getState() != TrackingState.None) {
-            rotSpeed = Tracking.get().getRobotRotationSpeed();
-        }
-
+    public static void driveRaw(double xSpeed, double ySpeed, double rotSpeed, double periodSeconds) {
         if ((xSpeed != 0 || ySpeed != 0) && rotSpeed == 0) {
             rotSpeed = 0.6 * (holdAngle - getAngle());
         } else {
@@ -139,12 +115,42 @@ public class SwerveDrivetrain {
                     periodSeconds
         ));
 
-        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, SwerveConstants.maxSpeed);
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, SwerveConstants.maxSpeed * 2);
             
         final int size = modules.size();
         for (int i = 0; i < size; ++i) {
             modules.get(i).update(moduleStates[i]);
         }
+    }
+
+    /** Drive the robot with the given input.
+     * @param inputs The InputPacket containing all inputs for the current period.
+     * @param periodSeconds The duration of the current period, in seconds.
+     */
+    public static void drive(
+        InputPacket inputs,
+        double periodSeconds
+        ) {
+        double xSpeed = xSpeedLimiter.calculate(inputs.xSpeed()) * SwerveConstants.maxSpeed;
+        double ySpeed = ySpeedLimiter.calculate(inputs.ySpeed()) * SwerveConstants.maxSpeed;
+        double rotSpeed = rotSpeedLimiter.calculate(inputs.rotSpeed()) * SwerveConstants.maxAngularVelocity;
+
+        double speedMod = MathUtil.interpolate(1, DriveConstants.slowModeModifier, inputs.slowMod());
+        speedMod = MathUtil.interpolate(speedMod, 2, inputs.fastMod());
+
+        xSpeed *= speedMod;
+        ySpeed *= speedMod;
+        rotSpeed *= speedMod;
+
+        //if (rotSpeed != 0) {
+            //Tracking.get().setState(TrackingState.None);
+        //}
+
+        //if (Tracking.get().getState() != TrackingState.None) {
+            //rotSpeed = Tracking.get().getRobotRotationSpeed();
+        //}
+
+        driveRaw(xSpeed, ySpeed, rotSpeed, periodSeconds);
     }
 
     /** Udpate the odometry of the swerve drive */

@@ -3,6 +3,7 @@ package frc.robot.tracking;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** A class that wraps low-level limelight functionality */
 public class Limelight {
@@ -18,7 +19,7 @@ public class Limelight {
 
     /** Construct a new Limelight instance. */
     private Limelight() {
-        NetworkTableInstance.getDefault().getTable("limelight");
+        limelight = NetworkTableInstance.getDefault().getTable("limelight");
         tv = limelight.getEntry("tv");
         tx = limelight.getEntry("tx");
         ty = limelight.getEntry("ty");
@@ -47,7 +48,7 @@ public class Limelight {
      * @param id The id to target.
      */
     public static void setPriority(int id) {
-        getInstance().priorityid.setDouble(id);
+        getInstance().priorityid.setInteger(id);
     }
 
     /** Get the position of the detected tag on the screen, or (0.0, 0.0) if a tag is not detected.
@@ -63,7 +64,22 @@ public class Limelight {
      */
     public static FieldPos getTagFieldPos() {
         double[] pos = getInstance().targetpose.getDoubleArray(new double[6]);
+        SmartDashboard.putNumberArray("tpos", pos);
         return new FieldPos(pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]);
+    }
+
+    public static void camModeDriver() {
+        getInstance().limelight.getEntry("camMode").setDouble(1);
+        getInstance().limelight.getEntry("ledMode").setDouble(1);
+    }
+
+    public static void camModeVision() {
+        getInstance().limelight.getEntry("camMode").setDouble(0);
+        getInstance().limelight.getEntry("ledMode").setDouble(0);
+    }
+
+    public static void camStreamSetup() {
+        getInstance().limelight.getEntry("stream").setDouble(2);
     }
 
     public static record ScreenPos(double x, double y) {}

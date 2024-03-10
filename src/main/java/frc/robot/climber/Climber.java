@@ -2,8 +2,10 @@ package frc.robot.climber;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.input.InputPacket;
 import frc.robot.utils.TaskRunner;
 import frc.robot.utils.TaskRunner.Task;
@@ -26,6 +28,12 @@ public class Climber {
         leftEncoder = leftMotor.getEncoder();
         rightEncoder = rightMotor.getEncoder();
 
+        leftMotor.setInverted(true);
+        rightMotor.setInverted(true);
+
+        leftMotor.setIdleMode(IdleMode.kBrake);
+        rightMotor.setIdleMode(IdleMode.kBrake);
+
         leftTaskRunner = new TaskRunner<InputPacket>().withDefault((input) -> {
             double speed = input.climberSpeed() * ClimberConstants.climberMaxSpeed;
             if (leftEncoder.getPosition() < ClimberConstants.climberMin) {
@@ -33,6 +41,10 @@ public class Climber {
             }
             if (leftEncoder.getPosition() > ClimberConstants.climberMax) {
                 speed = Math.min(speed, 0);
+            }
+
+            if (input.overrideClimberSpeed() != 0.0) {
+                speed = input.overrideClimberSpeed() * ClimberConstants.climberMaxSpeed;
             }
             leftMotor.set(speed);
         });
@@ -45,29 +57,46 @@ public class Climber {
             if (rightEncoder.getPosition() > ClimberConstants.climberMax) {
                 speed = Math.min(speed, 0);
             }
-            leftMotor.set(speed);
+            if (input.overrideClimberSpeed() != 0.0) {
+                speed = input.overrideClimberSpeed() * ClimberConstants.climberMaxSpeed;
+            }
+            rightMotor.set(speed);
         });
     }
 
     public void handleInputs(InputPacket inputs) {
-        if (inputs.climberSpeed() != 0.0) {
+        if (inputs.climberSpeed() != 0.0 || inputs.overrideClimberSpeed() != 0.0) {
             leftTaskRunner.clear();
             rightTaskRunner.clear();
         }
 
-        if (inputs.homeClimber() && !leftTaskRunner.isBusy() && !rightTaskRunner.isBusy()) {
-            queueHomeTask(leftTaskRunner, leftMotor, leftEncoder);
-            queueHomeTask(rightTaskRunner, rightMotor, rightEncoder);
+        if (inputs.homeClimber()) {
+            home();
         }
 
         leftTaskRunner.runOnce(inputs);
         rightTaskRunner.runOnce(inputs);
+
+        SmartDashboard.putBoolean("leftb", leftTaskRunner.isBusy());
+        SmartDashboard.putBoolean("rightb", rightTaskRunner.isBusy());
+        SmartDashboard.putNumber("leftc", leftMotor.getOutputCurrent());
+        SmartDashboard.putNumber("rightc", rightMotor.getOutputCurrent());
+    }
+
+    public void home() {
+        if (!leftTaskRunner.isBusy() && !rightTaskRunner.isBusy()) {
+            queueHomeTask(leftTaskRunner, leftMotor, leftEncoder);
+            queueHomeTask(rightTaskRunner, rightMotor, rightEncoder);
+        }
     }
 
     private void queueHomeTask(TaskRunner<InputPacket> runner, CANSparkMax motor, RelativeEncoder encoder) {
         runner.then(new Task<InputPacket>((input) -> {
             motor.set(-ClimberConstants.climberHomeSpeed);
         }, 5))
+        .then(new Task<InputPacket>((input) -> {
+            motor.set(ClimberConstants.climberHomeSpeed);
+        }, 4))
         .then(new Task<InputPacket>((input) -> {
             motor.set(ClimberConstants.climberHomeSpeed);
         }, () -> motor.getOutputCurrent() >= ClimberConstants.climberHomeCurrentThreshold))

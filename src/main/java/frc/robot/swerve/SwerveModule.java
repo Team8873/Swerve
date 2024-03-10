@@ -19,7 +19,7 @@ public class SwerveModule {
     public SwerveModule(ModuleSettings settings) {
         drive = new SwerveDriveMotor(settings.drivePort, SwerveConstants.drivePID);
         encoder = new SwerveEncoder(settings.encoderPort, settings.name);
-        turn = new SwerveTurnMotor(settings.turnPort, encoder, SwerveConstants.getTurnPID());
+        turn = new SwerveTurnMotor(settings.turnPort, encoder, SwerveConstants.getTurnPID(), settings.inverted);
 
         drive.setupUI(settings.name, settings.columnBase);
         turn.setupUI(settings.name, settings.columnBase + 1);
@@ -68,6 +68,7 @@ public class SwerveModule {
         public final int encoderPort;
         public final int columnBase;
         public final String name;
+        public final boolean inverted;
 
         /** Create a new ModuleSettings with the given parameters
          * @param drive The port of the drive motor.
@@ -76,12 +77,13 @@ public class SwerveModule {
          * @param displayColumnn The leftmost column to display this module's Shuffleboard interface on.
          * @param name The name of this module.
          */
-        public ModuleSettings(int drive, int turn, int encoder, int displayColumnn, String name) {
+        public ModuleSettings(int drive, int turn, int encoder, int displayColumnn, String name, boolean isInverted) {
             drivePort = drive;
             turnPort = turn;
             encoderPort = encoder;
             columnBase = displayColumnn;
             this.name = name;
+            inverted = isInverted;
         }
     }
 

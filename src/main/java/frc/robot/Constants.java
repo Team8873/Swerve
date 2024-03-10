@@ -50,10 +50,10 @@ public class Constants {
 
         /** A list of all swerve module settings, later used by the drivetrain to initialize the swerve modules */
         public static final List<ModuleSettings> settings = Arrays.asList(new ModuleSettings[] {
-            new ModuleSettings(6, 5, 9,  9, "front-left"),
-            new ModuleSettings(8, 7, 10, 6, "front-right"),
-            new ModuleSettings(4, 3, 11, 3, "back-left"),
-            new ModuleSettings(2, 1, 12, 0, "back-right"),
+            new ModuleSettings(6, 5, 9,  9, "front-left", true),
+            new ModuleSettings(8, 7, 10, 6, "front-right", true),
+            new ModuleSettings(4, 3, 11, 3, "back-left", true),
+            new ModuleSettings(2, 1, 12, 0, "back-right", true),
         });
 
         /** The positions of all swerve modules, left to right, front to back. */
@@ -101,33 +101,40 @@ public class Constants {
         /** Maximum speed of user-controlled arm rotation */
         public static final double rotSpeed = -0.24;
         /** Maximum speed of user-controlled shooting */
-        public static final double shooterSpeed = 0.72;
+        public static final double shooterSpeed = 1.0;
         /** Maximum speed of user-controlled intaking */
         public static final double intakeSpeed = 1.0;
 
         /** Gain of the angle hold system */
         public static final double angleHoldGain = -0.24;
         /** The maximum speed of the angle hold system, on [0,1] */
-        public static final double angleHoldMaxSpeed = 0.6;
+        public static final double angleHoldMaxSpeed = 0.8;
 
         /** Angle of the arm when it is touching the ground */
-        public static final double armGround = 0.0;
+        public static final double armGround = 137.7;
+        /** Angle of the arm when it is up */
+        public static final double armUp = 205;
         /** Angle of the arm when it is at the arbitrary shooting position */
-        public static final double armShoot = -30.0;
+        public static final double armShoot = 145.0;
         /** Angle of the arm when it is at the amp scoring position */
-        public static final double armAmp = -74.0;
+        public static final double armAmp = 221.0;
     }
 
     public static class ClimberConstants {
         public static final int leftMotorPort = 18;
         public static final int rightMotorPort = 19;
 
-        public static final double climberMaxSpeed = 0.5;
-        public static final double climberHomeSpeed = -0.05;
-        public static final double climberHomeCurrentThreshold = 5.0;
+        public static final double climberMaxSpeed = 0.75;
+        public static final double climberHomeSpeed = -0.1;
+        public static final double climberHomeCurrentThreshold = 35.0;
 
-        public static final double climberMax = Double.POSITIVE_INFINITY;
-        public static final double climberMin = Double.NEGATIVE_INFINITY;
+        public static final double climberMax = 130;
+        public static final double climberMin = 4.0;
+    }
+
+    public static class AutoConstants {
+        public static final double firstShotAngle = 145.0;
+        public static final double secondShotAngle = 159.5;
     }
 
     public static class DriveConstants {
