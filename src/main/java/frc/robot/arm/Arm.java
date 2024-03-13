@@ -112,7 +112,7 @@ public class Arm {
             doingIntakeTask = true;
             if (!shooterTaskRunner.isBusy()) {
                 shooterTaskRunner.then(new Task<InputPacket>((i) -> {
-                    shooter.setSpeed(0.0);
+                    shooter.setSpeed(-0.1);
                     intake.setSpeed(i.intakeSpeed());
                 }, () -> DistanceSensor.isDetecting() && DistanceSensor.distance() < 3.0))
                 .then(new Task<InputPacket>((i) -> {
