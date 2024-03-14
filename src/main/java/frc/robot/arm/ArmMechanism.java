@@ -69,7 +69,7 @@ public class ArmMechanism {
         holdAngle = currentAngle;
     }
 
-    private static double SOFT_STOP_MIN = 132.7;
+    private static double SOFT_STOP_MIN = 134.0;
     private static double SOFT_STOP_MAX = 224.0;
 
     /** Apply the soft stop to make sure the arm does not move to far

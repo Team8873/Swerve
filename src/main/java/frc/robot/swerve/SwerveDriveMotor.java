@@ -35,6 +35,10 @@ public class SwerveDriveMotor {
 
         targetVelocity = 0;
         currentSpeed = 0;
+
+        UIConstants.debug.addDouble(motorPort + " target velocity", () -> targetVelocity);
+        UIConstants.debug.addDouble(motorPort + " current velocity", () -> encoder.getVelocity());
+
     }
 
     /** Set the target velocity of the motor.

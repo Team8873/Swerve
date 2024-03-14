@@ -80,7 +80,7 @@ public class SwerveEncoder {
             UIConstants.tuning,
             "Zero " + port,
             new Position(column, 1),
-            () -> { updateOffset(-encoderOffset); });
+            () -> { updateOffset(-encoder.getPosition().getValueAsDouble()); });
 
         UIConstants.tuning
         .addDouble(

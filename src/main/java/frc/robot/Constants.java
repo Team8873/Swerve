@@ -111,13 +111,15 @@ public class Constants {
         public static final double angleHoldMaxSpeed = 0.8;
 
         /** Angle of the arm when it is touching the ground */
-        public static final double armGround = 137.7;
+        public static final double armGround = 134;
         /** Angle of the arm when it is up */
-        public static final double armUp = 205;
+        public static final double armUp = 201.3;
         /** Angle of the arm when it is at the arbitrary shooting position */
-        public static final double armShoot = 145.0;
+        public static final double armShoot = 141.3;
         /** Angle of the arm when it is at the amp scoring position */
-        public static final double armAmp = 221.0;
+        public static final double armAmp = 218.3;
+
+        public static final int armPushBackAfterItPullsInWhenItIntakes = 7;
     }
 
     public static class ClimberConstants {

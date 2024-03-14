@@ -1,7 +1,6 @@
 package frc.robot.arm;
 
 import frc.robot.tracking.Tracking;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.input.InputPacket;
 import frc.robot.input.InputPacket.ArmCommand;
@@ -114,15 +113,15 @@ public class Arm {
                 shooterTaskRunner.then(new Task<InputPacket>((i) -> {
                     shooter.setSpeed(-0.1);
                     intake.setSpeed(i.intakeSpeed());
-                }, () -> DistanceSensor.isDetecting() && DistanceSensor.distance() < 3.0))
+                }, () -> DistanceSensor.isDetecting() && DistanceSensor.distance() < 10.0))
                 .then(new Task<InputPacket>((i) -> {
                     shooter.setSpeed(0.0);
                     intake.setSpeed(-0.5);
-                }, () -> DistanceSensor.distance() > 3.0))
+                }, () -> DistanceSensor.distance() > 10.0)) // <--- Intake suck it back
                 .then(new Task<InputPacket>((i) -> {
                     shooter.setSpeed(0.0);
                     intake.setSpeed(0.5);
-                }, 5))
+                }, ArmConstants.armPushBackAfterItPullsInWhenItIntakes)) // <--- Intake push back in after it sucks it back
                 .then(new Task<InputPacket>((i) -> {
                     shooter.setSpeed(0.0);
                     intake.setSpeed(Math.min(i.intakeSpeed(), 0.0));

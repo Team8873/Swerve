@@ -7,9 +7,7 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -17,7 +15,6 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.UIConstants;
 import frc.robot.tracking.Tracking.TrackingState;
@@ -91,8 +88,6 @@ public class Robot extends TimedRobot {
   private static double lightsC = 0.01;
 
   private static boolean wasPov = false;
-  private boolean wasC = false;
-  private boolean isC = false;
 
   @Override
   public void robotPeriodic() {
@@ -111,19 +106,8 @@ public class Robot extends TimedRobot {
     }
 
     SmartDashboard.putNumber("dist", DistanceSensor.distance());
-
-    // boolean man = theGuy.get();
-    // if (wasC && !man) {
-    //   isC = !isC;
-    // }
-
-    // wasC = man;
-
-    // SmartDashboard.putBoolean("Tripped", isC);
-    // SmartDashboard.putNumber("man2", man ? 1 : 0);
   }
 
-  private boolean homed = false;
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
@@ -134,7 +118,6 @@ public class Robot extends TimedRobot {
 
     //if (/* homed && */ !DriverStation.isFMSAttached()) {
       climber.home();
-      homed = true;
     //}
 
     lights.set(lightsC);
@@ -178,26 +161,31 @@ public class Robot extends TimedRobot {
       return;
     }
     if (autoChooser.getSelected() == drive) {
+      // Bring the arm down
       autoTaskRunner.then(new Task<Integer>((i) -> {
         arm.rotator.setHoldAngle(Constants.AutoConstants.firstShotAngle);
         arm.rotator.setRotationSpeed(0, true);
         SwerveDrivetrain.driveRaw(0, 0, 0, getPeriod());
       }, () -> MathUtil.isNear(Constants.AutoConstants.firstShotAngle, arm.rotator.getAngle(), 4.0)))
+      // Push the note back a little bit
       .then(new Task<Integer>((i) -> {
         arm.intake.setSpeed(-0.5);
         arm.shooter.setSpeed(0.0);
         arm.rotator.setRotationSpeed(0, true);
       }, 2))
+      // Spool up the shooter
       .then(new Task<Integer>((i) -> {
         arm.intake.setSpeed(0.0);
         arm.shooter.setSpeed(0.8);
         arm.rotator.setRotationSpeed(0, true);
       }, 40))
+      // Shoot the note
       .then(new Task<Integer>((i) -> {
         arm.intake.setSpeed(1.0);
         arm.shooter.setSpeed(0.7);
         arm.rotator.setRotationSpeed(0, true);
       }, 16))
+      // Drive in some combination of directions
       .then(new Task<Integer>((i) -> {
         arm.rotator.setHoldAngle(ArmConstants.armGround);
         arm.rotator.setRotationSpeed(0, true);
@@ -222,21 +210,25 @@ public class Robot extends TimedRobot {
         SwerveDrivetrain.driveRaw(0.5, 0.00, 0.0, getPeriod());
         autoBackCounter++;
       }, 50))
+      // Bring the arm down
       .then(new Task<Integer>((i) -> {
         arm.rotator.setHoldAngle(Constants.AutoConstants.firstShotAngle);
         arm.rotator.setRotationSpeed(0, true);
         SwerveDrivetrain.driveRaw(0, 0, 0, getPeriod());
       }, () -> MathUtil.isNear(Constants.AutoConstants.firstShotAngle, arm.rotator.getAngle(), 4.0)))
+      // Pull the note back a bit
       .then(new Task<Integer>((i) -> {
         arm.intake.setSpeed(-0.5);
         arm.shooter.setSpeed(0.0);
         arm.rotator.setRotationSpeed(0, true);
       }, 2))
+      // Spool the shooter
       .then(new Task<Integer>((i) -> {
         arm.intake.setSpeed(0.0);
         arm.shooter.setSpeed(0.8);
         arm.rotator.setRotationSpeed(0, true);
       }, 40))
+      // Shoot
       .then(new Task<Integer>((i) -> {
         arm.intake.setSpeed(1.0);
         arm.shooter.setSpeed(0.7);
@@ -315,31 +307,13 @@ public class Robot extends TimedRobot {
       arm.intake.setSpeed(1.0);
       arm.shooter.setSpeed(0.7);
       arm.rotator.setRotationSpeed(0, true);
-    }, 16));
-    //.then(new Task<Integer>((i) -> {
-      //arm.rotator.setRotationSpeed(0, true);
-      //SwerveDrivetrain.driveRaw(0.0, 0.0, -(Limelight.getTagFieldPos().pitch() - 10) / 20.0, getPeriod());
-      //arm.intake.setSpeed(1.0);
-    //}, () -> DistanceSensor.distance() < 10.0))
-    //.then(new Task<Integer>((i) -> {
-      //arm.intake.setSpeed(-1.0);
-      //arm.shooter.setSpeed(0.0);
-      //arm.rotator.setRotationSpeed(0, true);
-      //arm.rotator.setHoldAngle(AutoConstants.secondShotAngle);
-      //SwerveDrivetrain.driveRaw(0.0, 0.0, -(Limelight.getTagFieldPos().pitch() - 10) / 20.0, getPeriod());
-    //}, 4))
-    //.then(new Task<Integer>((i) -> {
-      //arm.intake.setSpeed(0.0);
-      //arm.shooter.setSpeed(1.0);
-      //arm.rotator.setRotationSpeed(0, true);
-      //SwerveDrivetrain.driveRaw(0.0, 0.0, -(Limelight.getTagFieldPos().pitch() - 10) / 28.0, getPeriod());
-    //}, 70))
-    //.then(new Task<Integer>((i) -> {
-      //arm.intake.setSpeed(1.0);
-      //arm.shooter.setSpeed(0.9);
-      //arm.rotator.setRotationSpeed(0, true);
-    //}, 16));
-
+    }, 16))
+    .then(new Task<Integer>((i) -> {
+      arm.intake.setSpeed(0.0);
+      arm.shooter.setSpeed(0.0);
+      arm.rotator.setRotationSpeed(0, true);
+      SwerveDrivetrain.driveRaw(-0.5, -0.5, 0, getPeriod());
+    }, 60));
   }
   @Override
   public void disabledInit() {}
