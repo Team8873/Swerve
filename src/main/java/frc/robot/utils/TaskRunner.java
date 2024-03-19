@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class TaskRunner<T> {
     private Queue<Task<T>> tasks;
@@ -33,7 +34,7 @@ public class TaskRunner<T> {
         
         var currentTask = tasks.element();
         currentTask.run(parameter);
-        if (currentTask.isFinished()) {
+        if (currentTask.isFinished(parameter)) {
             tasks.remove();
         }
     }
@@ -49,7 +50,8 @@ public class TaskRunner<T> {
     public static class Task<T> {
         private Consumer<T> task;
         private TaskType type;
-        private BooleanSupplier completed;
+        private BooleanSupplier completedSupp;
+        private Predicate<T> completedPred;
         private int duration;
         private int timer;
 
@@ -68,14 +70,20 @@ public class TaskRunner<T> {
         public Task(Consumer<T> task, BooleanSupplier toWaitFor) {
             this.task = task;
             this.type = TaskType.WaitForCallback;
-            this.completed = toWaitFor;
+            this.completedSupp = toWaitFor;
+        }
+
+        public Task(Consumer<T> task, Predicate<T> toWaitFor) {
+            this.task = task;
+            this.type = TaskType.WaitForPredicate;
+            this.completedPred = toWaitFor;
         }
         
         private void run(T input) {
             task.accept(input);
         }
 
-        private boolean isFinished() {
+        private boolean isFinished(T process) {
             switch (this.type) {
                 case Infinite: return false;
                 case Duration:
@@ -86,7 +94,8 @@ public class TaskRunner<T> {
                     ++timer;
                     return false;
                 }
-                case WaitForCallback: return completed.getAsBoolean();
+                case WaitForCallback: return completedSupp.getAsBoolean();
+                case WaitForPredicate: return completedPred.test(process);
                 default: return true;
             }
         }
@@ -95,6 +104,7 @@ public class TaskRunner<T> {
             Infinite,
             Duration,
             WaitForCallback,
+            WaitForPredicate,
         }
     }
 }

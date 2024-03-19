@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.swerve.SwerveDrivetrain;
 
 /** A class representing the robot state during auton */
@@ -16,11 +17,13 @@ public class AutoState {
     public boolean done;
 
     private DoubleSupplier armRot;
+    private DoubleSupplier shooterRevs;
 
     /** Create a new default auton state. All parameters are inferred exceupt for the arm rotation which needs to be manually provided.
      * @param armRotationSupplier A supplier for the arm rotation in degrees.
+     * @param shooterRevSupplier A supplier for the shooter rpm.
      */
-    public AutoState(DoubleSupplier armRotationSupplier) {
+    public AutoState(DoubleSupplier armRotationSupplier, DoubleSupplier shooterRevSupplier) {
         armRotationTarget = armRot.getAsDouble();
         intakeSpeed = 0.0;
         shooterSpeed = 0.0;
@@ -41,5 +44,12 @@ public class AutoState {
      */
     public boolean atArmTarget() {
         return MathUtil.isNear(armRotationTarget, armRot.getAsDouble(), 1);
+    }
+
+    /** Checks if the shooter is spooled up.
+     * @return Whether the shooter is spooled up.
+     */
+    public boolean isShooterSpooled() {
+        return shooterRevs.getAsDouble() > ArmConstants.shooterRevSpeed;
     }
 }

@@ -90,7 +90,7 @@ public class SwerveDrivetrain {
     /** Get the current angle of the drivetrain, in radians.
      * @return The current angle of the drivetrain, in radians.
      */
-    private static double getAngle() {
+    public static double getAngle() {
         return gyroscope.getAngle() / 180 * -Math.PI;
     }
 

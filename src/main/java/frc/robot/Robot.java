@@ -6,13 +6,11 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.UIConstants;
 import frc.robot.tracking.Tracking.TrackingState;
@@ -28,7 +26,7 @@ import frc.robot.ui.SimpleButton;
 import frc.robot.utils.DistanceSensor;
 import frc.robot.utils.ParameterStore;
 import frc.robot.utils.TaskRunner;
-import frc.robot.utils.TaskRunner.Task;
+import frc.robot.auto.AutoTask;
 
 public class Robot extends TimedRobot {
     private final AHRS gyroscope = new AHRS();
@@ -89,27 +87,14 @@ public class Robot extends TimedRobot {
         Limelight.camModeVision();
         SwerveDrivetrain.setPosition(Limelight.getRobotPos());
         arm.onModeInit();
-        autoState = new AutoState(() -> arm.getArmAngle());
+        autoState = new AutoState(() -> arm.getArmAngle(), () -> arm.getShooterSpeed());
         autoTaskRunner
-            .then(new Task<AutoState>((AutoState s) -> {
-                s.armRotationTarget = AutoConstants.firstShotAngle;
-                s.shooterSpeed = 0.8;
-            }, () -> autoState.atArmTarget()))
-            .then(new Task<AutoState>((AutoState s) -> {
-                s.shooterSpeed = 1.0;
-                s.intakeSpeed = 1.0;
-            }, 10))
-            .then(new Task<AutoState>((AutoState s) -> {
-                s.shooterSpeed = 0.0;
-                s.intakeSpeed = 0.0;
-                s.targetPosition = new Translation2d(3.3, 7.0);
-            }, () -> autoState.atSwerveTarget()))
-            .then(new Task<AutoState>((AutoState s) -> {
-                s.targetPosition = new Translation2d(1.56, 5.33);
-            }, () -> autoState.atSwerveTarget()))
-            .then(new Task<AutoState>((AutoState s) -> {
-                s.done = true;
-            }));
+            .then(AutoTask.prepShoot)
+            .then(AutoTask.shoot)
+            .then(AutoTask.toNote1)
+            .then(AutoTask.toSpeaker)
+            .then(AutoTask.prepShoot)
+            .then(AutoTask.shoot);
         return;
     }
 

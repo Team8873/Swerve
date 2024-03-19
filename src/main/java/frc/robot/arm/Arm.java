@@ -166,6 +166,13 @@ public class Arm {
      * @return Whether the shooter is currently spooled up.
      */
     public boolean isShooterSpooled() {
-        return shooter.leftMotor.getEncoder().getVelocity() > 5000;
+        return getShooterSpeed() > ArmConstants.shooterRevSpeed;
+    }
+
+    /** Get the current speed of the shooter in rpm.
+     * @return The speed of the shooter.
+     */
+    public double getShooterSpeed() {
+        return shooter.leftMotor.getEncoder().getVelocity();
     }
 }

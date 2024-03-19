@@ -123,6 +123,8 @@ public class Constants {
         public static final double armAmp = 220.3;
 
         public static final int armPushBackAfterItPullsInWhenItIntakes = 7;
+
+        public static final double shooterRevSpeed = 5000;
     }
 
     public static class ClimberConstants {
@@ -140,6 +142,9 @@ public class Constants {
     public static class AutoConstants {
         public static final double firstShotAngle = 145.0;
         public static final double secondShotAngle = 159.5;
+
+        public static final Translation2d speakerPos = new Translation2d(1.56, 5.33);
+        public static final Translation2d note1Pos = new Translation2d(3.3, 7.0);
     }
 
     public static class DriveConstants {
