@@ -1,0 +1,10 @@
+#!/bin/sh
+./gradlew build
+let ret=$?
+
+if [[ ret -ne 0 ]] then
+    echo "ERROR: Build failed"
+    exit 1
+fi
+
+exit 0
