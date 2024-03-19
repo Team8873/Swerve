@@ -6,11 +6,14 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.UIConstants;
@@ -96,12 +99,47 @@ public class SwerveDrivetrain {
         holdAngle = getAngle();
     }
 
+    public static void setHoldAngle(double angle) {
+        holdAngle = angle;
+    }
+
+    public static boolean at(double x, double y) {
+        Translation2d pos = odometry.getPoseMeters().getTranslation();
+        boolean isAt = MathUtil.isNear(pos.getX(), x, 0.05) && MathUtil.isNear(pos.getY(), y, 0.05);
+        if (isAt) System.out.println("at the point");
+        return isAt;
+    }
+
+    public static void driveTo(Translation2d target, double period) {
+        Translation2d pos = odometry.getPoseMeters().getTranslation();
+        double x = pos.getX() - target.getX();
+        double y = pos.getY() - target.getY();
+
+        if (x < 0 && x < -0.03) {
+            x = Math.min(-3.0, -0.1);
+        } else if (x > 0.03) {
+            x = Math.max(3.0, 0.1);
+        }
+
+        if (y < 0 && y < -0.03) {
+            y = Math.min(-3.0, -0.1);
+        } else if (y > 0.03) {
+            y = Math.max(3.0, 0.1);
+        }
+
+        driveRaw(x, y, 0.0, period);
+    }
+
     public static void driveRaw(double xSpeed, double ySpeed, double rotSpeed, double periodSeconds) {
         if ((xSpeed != 0 || ySpeed != 0) && rotSpeed == 0) {
-            rotSpeed = 0.6 * (holdAngle - getAngle());
+            rotSpeed = 0.6 * (holdAngle - getAngle()) * (Math.abs(xSpeed) + Math.abs(ySpeed)) * 2;
+            System.out.println("holding with " + rotSpeed);
         } else {
             resetHoldAngle();
         }
+
+        SmartDashboard.putNumber("drive x", xSpeed);
+        SmartDashboard.putNumber("drive y", ySpeed);
 
         var moduleStates = kinematics.toSwerveModuleStates(
             ChassisSpeeds.discretize(
@@ -156,5 +194,16 @@ public class SwerveDrivetrain {
         odometry.update(
             gyroscope.getRotation2d(),
             modules.stream().map(m -> m.getPosition()).toArray(s -> new SwerveModulePosition[s]));
+        Translation2d pos = odometry.getPoseMeters().getTranslation();
+        SmartDashboard.putNumber("bot x", pos.getX());
+        SmartDashboard.putNumber("bot y", pos.getY());
+    }
+
+    public static void setPosition(Pose2d pose) {
+        odometry.resetPosition(gyroscope.getRotation2d(), modules.stream().map(m -> m.getPosition()).toArray(s -> new SwerveModulePosition[s]), pose);
+    }
+
+    public static Translation2d getPosition() {
+        return odometry.getPoseMeters().getTranslation();
     }
 }

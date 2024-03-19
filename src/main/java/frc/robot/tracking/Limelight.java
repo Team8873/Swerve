@@ -1,5 +1,7 @@
 package frc.robot.tracking;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -68,9 +70,14 @@ public class Limelight {
         return new FieldPos(pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]);
     }
 
+    public static Pose2d getRobotPos() {
+        double[] pos = getInstance().limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
+        return new Pose2d(pos[0], pos[1], Rotation2d.fromDegrees(pos[5]));
+    }
+
     public static void camModeDriver() {
-        getInstance().limelight.getEntry("camMode").setDouble(1);
-        getInstance().limelight.getEntry("ledMode").setDouble(1);
+        getInstance().limelight.getEntry("camMode").setDouble(0);
+        getInstance().limelight.getEntry("ledMode").setDouble(0);
     }
 
     public static void camModeVision() {

@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import frc.robot.Constants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.UIConstants;
 import frc.robot.utils.PIDSettings;
 
@@ -27,18 +28,20 @@ public class SwerveDriveMotor {
         motor = new CANSparkMax(motorPort, MotorType.kBrushless);
         encoder = motor.getEncoder();
         velocityPid = pid.toController(motor);
-        velocityPid.setFF(1.0);
+        velocityPid.setFF(0.25);
 
         encoder.setPositionConversionFactor(Constants.SwerveConstants.driveEncoderScaleFactor);
         // RPS to RPM
-        encoder.setVelocityConversionFactor(Constants.SwerveConstants.driveEncoderScaleFactor * 60);
+        //encoder.setVelocityConversionFactor(SwerveConstants.driveEncoderScaleFactor / 60 * 4096);
+        encoder.setVelocityConversionFactor(SwerveConstants.driveEncoderScaleFactor/60*SwerveConstants.driveRotationsPerPulse);
 
         targetVelocity = 0;
         currentSpeed = 0;
 
         UIConstants.debug.addDouble(motorPort + " target velocity", () -> targetVelocity);
         UIConstants.debug.addDouble(motorPort + " current velocity", () -> encoder.getVelocity());
-
+        UIConstants.debug.addDouble(motorPort + " position", () -> encoder.getPosition());
+        System.out.println(encoder.getCountsPerRevolution());
     }
 
     /** Set the target velocity of the motor.

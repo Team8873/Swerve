@@ -34,7 +34,7 @@ public class Constants {
         /** The diameter of the wheels in meters */
         public static final double wheelDiameterMeters = 0.1016;
         /** The number of encoder pulses per wheel rotation */
-        public static final double driveRotationsPerPulse = 4096.0;
+        public static final double driveRotationsPerPulse = 1.0;
         public static final double gearRatio = 1 / 8.14;
         /** The scaling factor to convert drive encoder pulses to meters */
         public static final double driveEncoderScaleFactor = wheelDiameterMeters * Math.PI * gearRatio / driveRotationsPerPulse;
@@ -111,13 +111,13 @@ public class Constants {
         public static final double angleHoldMaxSpeed = 0.8;
 
         /** Angle of the arm when it is touching the ground */
-        public static final double armGround = 134;
+        public static final double armGround = 136.5;
         /** Angle of the arm when it is up */
-        public static final double armUp = 201.3;
-        /** Angle of the arm when it is at the arbitrary shooting position */
-        public static final double armShoot = 141.3;
+        public static final double armUp = 203.3;
+        /** Angle of the arm when it is at the pressed-up-to-the-speaker shooting position */
+        public static final double armShoot = 147.5;
         /** Angle of the arm when it is at the amp scoring position */
-        public static final double armAmp = 218.3;
+        public static final double armAmp = 220.3;
 
         public static final int armPushBackAfterItPullsInWhenItIntakes = 7;
     }
