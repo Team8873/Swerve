@@ -11,6 +11,7 @@ import frc.robot.utils.TaskRunner;
 import frc.robot.utils.TaskRunner.Task;
 import frc.robot.Constants.ClimberConstants;
 
+/** A class that represents the climbing mechanism */
 public class Climber {
     private CANSparkMax leftMotor;
     private CANSparkMax rightMotor;
@@ -21,6 +22,7 @@ public class Climber {
     private TaskRunner<InputPacket> leftTaskRunner;
     private TaskRunner<InputPacket> rightTaskRunner;
 
+    /** Create a new climber instance with the default settings */
     public Climber() {
         leftMotor = new CANSparkMax(ClimberConstants.leftMotorPort, MotorType.kBrushless);
         rightMotor = new CANSparkMax(ClimberConstants.rightMotorPort, MotorType.kBrushless);
@@ -64,6 +66,9 @@ public class Climber {
         });
     }
 
+    /** Move the climbers as specified by the provided input packet
+     * @param inputs The input packet to process.
+     */
     public void handleInputs(InputPacket inputs) {
         if (inputs.climberSpeed() != 0.0 || inputs.overrideClimberSpeed() != 0.0) {
             leftTaskRunner.clear();
@@ -83,6 +88,7 @@ public class Climber {
         SmartDashboard.putNumber("rightc", rightMotor.getOutputCurrent());
     }
 
+    /** Activate the climber auto-home sequence */
     public void home() {
         if (!leftTaskRunner.isBusy() && !rightTaskRunner.isBusy()) {
             queueHomeTask(leftTaskRunner, leftMotor, leftEncoder);
@@ -90,6 +96,11 @@ public class Climber {
         }
     }
 
+    /** Queue up a home task on the given components.
+     * @param runner The arm's task runner.
+     * @param motor The arm's motor.
+     * @param encoder The arm's encoder.
+     */
     private void queueHomeTask(TaskRunner<InputPacket> runner, CANSparkMax motor, RelativeEncoder encoder) {
         runner.then(new Task<InputPacket>((input) -> {
             motor.set(-ClimberConstants.climberHomeSpeed);

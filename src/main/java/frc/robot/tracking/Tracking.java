@@ -25,17 +25,6 @@ public class Tracking {
      */
     public void setState(TrackingState state) {
         this.state = state;
-
-        if (this.state == TrackingState.Amp) {
-            var alliance = DriverStation.getAlliance();
-            //if (alliance.isEmpty()) {
-                // Limelight.setPriority(13);
-            //} else if (alliance.get() == Alliance.Red) {
-                //Limelight.setPriority(6);
-            //} else {
-                //Limelight.setPriority(5);
-            //}
-        }
     }
 
     public static boolean enabled() {

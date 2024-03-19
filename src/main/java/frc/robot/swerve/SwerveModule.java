@@ -26,6 +26,7 @@ public class SwerveModule {
         encoder.setupUI(settings.name, settings.columnBase);
     }
 
+    /** Update the interally stored encoder angle */
     public void updateEncoder() {
         encoder.updateAngle();
     }

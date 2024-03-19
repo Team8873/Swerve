@@ -45,8 +45,14 @@ public class Arm {
         });
     }
 
+    /** Update the stored encoder angle of the arm */
     public void updateEncoders() {
         rotator.updateEncoder();
+    }
+    
+    /** Get the current angle of the arm, in degrees */
+    public double getArmAngle() {
+        return rotator.getAngle();
     }
 
     /** Reset internal arm values that should be reset when the the robot is enabled in any mode */
@@ -104,9 +110,6 @@ public class Arm {
                 shooterTaskRunner.clear();
                 doingIntakeTask = false;
             }
-            //if (!shooterTaskRunner.isBusy()) {
-                //queueShooterTask();
-            //}
         } else if (inputs.intakeSpeed() > 0.0 && !inputs.overrideSensor()) {
             doingIntakeTask = true;
             if (!shooterTaskRunner.isBusy()) {
@@ -140,19 +143,28 @@ public class Arm {
         shooterTaskRunner.runOnce(inputs);
     }
 
-    private void queueShooterTask() {
-        shooterTaskRunner.then(new Task<InputPacket>((inputs) -> {
-            intake.setSpeed(-1.0);
-            shooter.setSpeed(-1.0);
-        }, 4))//.then(new Task<InputPacket>((inputs) -> {
-            //intake.setSpeed(0.0);
-            //shooter.setSpeed(1.0);
-        /*}, 40))*/.then(new Task<InputPacket>((inputs) -> {
-            intake.setSpeed(inputs.intakeSpeed());
-            shooter.setSpeed(inputs.shooterSpeed() * ArmConstants.shooterSpeed);
-        }));
+    /** Set the rotation target angle of the arm.
+     * @param angle The angle to go to in degrees.
+     */
+    public void setArmTargetAngle(double angle) {
+
+    }
+    
+    /** Run the arm using raw speed inputs.
+     * @param rotation The rotation speed.
+     * @param intake The intake speed.
+     * @param shooter The shooter speed.
+     * @param useSoftLimits Whether to use the arm soft limits.
+     */
+    public void handleRawInputs(double rotation, double intake, double shooter, boolean useSoftLimits) {
+        rotator.setRotationSpeed(rotation, useSoftLimits);
+        this.intake.setSpeed(intake);
+        this.shooter.setSpeed(shooter);
     }
 
+    /** Check if the shooter is spooled up to max velocity.
+     * @return Whether the shooter is currently spooled up.
+     */
     public boolean isShooterSpooled() {
         return shooter.leftMotor.getEncoder().getVelocity() > 5000;
     }

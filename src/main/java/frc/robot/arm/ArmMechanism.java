@@ -48,6 +48,7 @@ public class ArmMechanism {
             .withPosition(1, 6);
     }
 
+    /** Update the stored rotation of the arm */
     public void updateEncoder() {
         double angle = encoder.getAbsolutePosition();
         angle *= 360;
@@ -87,6 +88,9 @@ public class ArmMechanism {
         return speed;
     }
 
+    /** Get the angle of the arm.
+     * @return The angle of the arm in degrees.
+     */
     public double getAngle() {
         return currentAngle;
     }

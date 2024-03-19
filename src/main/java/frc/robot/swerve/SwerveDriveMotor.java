@@ -31,9 +31,8 @@ public class SwerveDriveMotor {
         velocityPid.setFF(0.25);
 
         encoder.setPositionConversionFactor(Constants.SwerveConstants.driveEncoderScaleFactor);
-        // RPS to RPM
-        //encoder.setVelocityConversionFactor(SwerveConstants.driveEncoderScaleFactor / 60 * 4096);
-        encoder.setVelocityConversionFactor(SwerveConstants.driveEncoderScaleFactor/60*SwerveConstants.driveRotationsPerPulse);
+        // RPM to RPS
+        encoder.setVelocityConversionFactor(SwerveConstants.driveEncoderVelocityFactor);
 
         targetVelocity = 0;
         currentSpeed = 0;
@@ -41,7 +40,6 @@ public class SwerveDriveMotor {
         UIConstants.debug.addDouble(motorPort + " target velocity", () -> targetVelocity);
         UIConstants.debug.addDouble(motorPort + " current velocity", () -> encoder.getVelocity());
         UIConstants.debug.addDouble(motorPort + " position", () -> encoder.getPosition());
-        System.out.println(encoder.getCountsPerRevolution());
     }
 
     /** Set the target velocity of the motor.

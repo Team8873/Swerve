@@ -99,17 +99,29 @@ public class SwerveDrivetrain {
         holdAngle = getAngle();
     }
 
+    /** Set the hold angle to the specified angle.
+     * @param angle The angle to hold the swerve drive at, in radians.
+     */
     public static void setHoldAngle(double angle) {
         holdAngle = angle;
     }
 
-    public static boolean at(double x, double y) {
+    /** Test if the robot is at the given position with the given tolerance.
+     * @param x The target x position.
+     * @param y The target y position.
+     * @param tolerance The amount of tolerance to check with.
+     * @return Whether the robot is at the target position.
+     */
+    public static boolean at(Translation2d target, double tolerance) {
         Translation2d pos = odometry.getPoseMeters().getTranslation();
-        boolean isAt = MathUtil.isNear(pos.getX(), x, 0.05) && MathUtil.isNear(pos.getY(), y, 0.05);
-        if (isAt) System.out.println("at the point");
+        boolean isAt = MathUtil.isNear(pos.getX(), target.getX(), tolerance) && MathUtil.isNear(pos.getY(), target.getY(), tolerance);
         return isAt;
     }
 
+    /** Drive the robot towards the given position.
+     * @param target The position to drive the robot to.
+     * @param period The curren period in milliseconds.
+     */
     public static void driveTo(Translation2d target, double period) {
         Translation2d pos = odometry.getPoseMeters().getTranslation();
         double x = pos.getX() - target.getX();
@@ -130,12 +142,15 @@ public class SwerveDrivetrain {
         driveRaw(x, y, 0.0, period);
     }
 
+    /** Drive the robot with raw speeds.
+     * @param xSpeed The x speed in meters per second.
+     * @param ySpeed The y speed in meters per second.
+     * @param rotSpeed The rotational speed in radians per second.
+     * @param periodSeconds The current period in meters per second.
+     */ 
     public static void driveRaw(double xSpeed, double ySpeed, double rotSpeed, double periodSeconds) {
         if ((xSpeed != 0 || ySpeed != 0) && rotSpeed == 0) {
             rotSpeed = 0.6 * (holdAngle - getAngle()) * (Math.abs(xSpeed) + Math.abs(ySpeed)) * 2;
-            System.out.println("holding with " + rotSpeed);
-        } else {
-            resetHoldAngle();
         }
 
         SmartDashboard.putNumber("drive x", xSpeed);
@@ -178,13 +193,9 @@ public class SwerveDrivetrain {
         ySpeed *= speedMod;
         rotSpeed *= speedMod;
 
-        //if (rotSpeed != 0) {
-            //Tracking.get().setState(TrackingState.None);
-        //}
-
-        //if (Tracking.get().getState() != TrackingState.None) {
-            //rotSpeed = Tracking.get().getRobotRotationSpeed();
-        //}
+        if (rotSpeed != 0.0 || !(xSpeed == 0.0 && ySpeed == 0.0)) {
+            resetHoldAngle();
+        }
 
         driveRaw(xSpeed, ySpeed, rotSpeed, periodSeconds);
     }
@@ -199,10 +210,16 @@ public class SwerveDrivetrain {
         SmartDashboard.putNumber("bot y", pos.getY());
     }
 
+    /** Set the interal position and rotation of the robot used by the odometry system.
+     * @param pose
+     */
     public static void setPosition(Pose2d pose) {
         odometry.resetPosition(gyroscope.getRotation2d(), modules.stream().map(m -> m.getPosition()).toArray(s -> new SwerveModulePosition[s]), pose);
     }
 
+    /** Get the current position of the robot as reported by the odometry system.
+     * @return The position of the robot relative to the field.
+     */
     public static Translation2d getPosition() {
         return odometry.getPoseMeters().getTranslation();
     }

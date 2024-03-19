@@ -34,10 +34,13 @@ public class Constants {
         /** The diameter of the wheels in meters */
         public static final double wheelDiameterMeters = 0.1016;
         /** The number of encoder pulses per wheel rotation */
-        public static final double driveRotationsPerPulse = 1.0;
+        public static final double driveRotationsPerPulse = 4096.0;
+        /** Gear ratio of the drive wheels. */
         public static final double gearRatio = 1 / 8.14;
         /** The scaling factor to convert drive encoder pulses to meters */
-        public static final double driveEncoderScaleFactor = wheelDiameterMeters * Math.PI * gearRatio / driveRotationsPerPulse;
+        public static final double driveEncoderScaleFactor = wheelDiameterMeters * Math.PI * gearRatio;
+        /** The scaling factor to convert drive encoder pulses to meters */
+        public static final double driveEncoderVelocityFactor = wheelDiameterMeters * Math.PI * gearRatio / 60;
         /** The maximum angular velocity of the drive train, in radians per second */
         public static final double maxAngularVelocity = 0.5 * Math.PI;
         /** The maximum angular acceleration of the drive train, in radians per second per second */

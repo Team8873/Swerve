@@ -1,10 +1,14 @@
 package frc.robot.tracking;
 
+import java.util.Optional;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** A class that wraps low-level limelight functionality */
@@ -70,21 +74,34 @@ public class Limelight {
         return new FieldPos(pos[0], pos[1], pos[2], pos[3], pos[4], pos[5]);
     }
 
+    /** Get the current robot position on the field.
+     * @return The position of the robot on the field.
+     */
     public static Pose2d getRobotPos() {
-        double[] pos = getInstance().limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        double[] pos;
+        if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+            pos = getInstance().limelight.getEntry("botpose_wpired").getDoubleArray(new double[6]);
+        } else {
+            pos = getInstance().limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
+        }
+
         return new Pose2d(pos[0], pos[1], Rotation2d.fromDegrees(pos[5]));
     }
 
+    /** Set up the camera for driver mode */
     public static void camModeDriver() {
         getInstance().limelight.getEntry("camMode").setDouble(0);
         getInstance().limelight.getEntry("ledMode").setDouble(0);
     }
 
+    /** Set up the camera for vision mode */
     public static void camModeVision() {
         getInstance().limelight.getEntry("camMode").setDouble(0);
         getInstance().limelight.getEntry("ledMode").setDouble(0);
     }
 
+    /** Set the camera stream to display a side-by-side */
     public static void camStreamSetup() {
         getInstance().limelight.getEntry("stream").setDouble(2);
     }

@@ -24,10 +24,6 @@ public record InputPacket(
     double overrideClimberSpeed,
     boolean homeClimber) {
 
-    public static InputPacket dummy() {
-        return new InputPacket(0, 0, 0, 0, 0, 0, 0, 0, ArmCommand.None, false, TrackingState.None, false, 0, 0, false);
-    }
-
     /** Create an InputPacket from the controllers inputs.
      * @param drive The main drive controller.
      * @return The InputPacket read from the controller.
